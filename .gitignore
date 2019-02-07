@@ -3,3 +3,10 @@
 ################################################################################
 
 /.vs
+/NetflixService/node_modules
+/NetflixService/obj
+/NetflixService/daemon
+/NetflixService/bin
+/NetflixSSL/bin/Debug/netcoreapp2.2
+/NetflixSSL/obj
+/packages

@@ -1,0 +1,5 @@
+openssl req -new -newkey rsa:2048 -nodes  -keyout private.key  -out mydomain.csr -subj "/C=US/ST=NewYork/L=NewYork/O=geekserver.com/OU=geekserver.com/CN=geekserver.com"
+openssl x509  -signkey private.key -in mydomain.csr  -req -days 365 -out domain.crt
+
+C:\Windows\System32\drivers\etc
+add to host file  127.0.0.1 GeekServer
