@@ -28,6 +28,18 @@ namespace NetflixSSL.Controllers
             return new string[] { "value1", "value2" };
         }
 
+        [Route("CollectVideo")]
+        [HttpGet]
+        public ActionResult<bool> CollectVideo(string dataText)
+        {
+            var videoData = JsonConvert.DeserializeObject<VideoData2>(HttpUtility.UrlDecode(dataText));
+            var urlList = new List<string>();
+            AppendForCrawler(videoData.Urls);
+            var format = "https://www.Netflix.com/watch/";
+            System.IO.File.AppendAllText(RootProject + "\\VideoData.csv", $"\r\n{videoData.Name},{videoData.MasterRootVideo},{format + videoData.MasterRootVideo}", Encoding.UTF8);
+            return true;
+        }
+
         [Route("ProcessVideo")]
         [HttpGet]
         public ActionResult<bool> ProcessVideo(string dataText)
@@ -40,6 +52,17 @@ namespace NetflixSSL.Controllers
             return true;
         }
 
+        private void AppendForCrawler(List<int> video)
+        {
+            var allvideo = System.IO.File.ReadAllLines(RootProject + "\\Videos.txt").Where(x => !string.IsNullOrEmpty(x)).Select(int.Parse).ToList();
+            var allvideoProcessed = System.IO.File.ReadAllLines(RootProject + "\\VideosProccessed.txt").Where(x => !string.IsNullOrEmpty(x)).Select(int.Parse).ToList();
+
+
+            var newVideo = video.Where(x => !allvideo.Contains(x) && !allvideoProcessed.Contains(x)).ToList();
+            if (newVideo != null && newVideo.Count > 0)
+                System.IO.File.AppendAllLines(RootProject + "\\Videos.txt", newVideo.ConvertAll(x => x.ToString()));
+        }
+
         [Route("GetNextVideo")]
         [HttpGet]
         public ActionResult<int> GetNextVideo(int? id, bool notfound)
@@ -50,11 +73,17 @@ namespace NetflixSSL.Controllers
                 allvideo.Remove(id.Value);
                 System.IO.File.WriteAllLines(RootProject + "\\Videos.txt", allvideo.ConvertAll(x => x.ToString()));
             }
+            if (!notfound && id.HasValue)
+                System.IO.File.AppendAllText(RootProject + "\\VideosProccessed.txt", "\r\n" + id.Value.ToString());
 
             if (notfound && id.HasValue)
                 System.IO.File.AppendAllText(RootProject + "\\VideosNotFound.txt", "\r\n" + id.Value.ToString());
             return allvideo.FirstOrDefault();
         }
+
+
+
+
 
         // GET api/values/5
         [HttpGet("{id}")]
@@ -91,6 +120,13 @@ namespace NetflixSSL.Controllers
     {
         public List<Video> Urls { get; set; }
         public string Season { get; set; }
+        public string MasterRootVideo { get; set; }
+        public string Name { get; set; }
+    }
+
+    public class VideoData2
+    {
+        public List<int> Urls { get; set; }
         public string MasterRootVideo { get; set; }
         public string Name { get; set; }
     }
