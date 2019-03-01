@@ -1,0 +1,156 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="EnglishWordsModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Root">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Parent" Type="int" />
+          <Property Name="Word" Type="nvarchar" MaxLength="256" Nullable="false" />
+        </EntityType>
+        <EntityType Name="WordInType">
+          <Key>
+            <PropertyRef Name="WordID" />
+            <PropertyRef Name="WordTypeID" />
+          </Key>
+          <Property Name="WordID" Type="int" Nullable="false" />
+          <Property Name="WordTypeID" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="WordType">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="TypeName" Type="nvarchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <Association Name="FK_WordInType_Root">
+          <End Role="Root" Type="Self.Root" Multiplicity="1" />
+          <End Role="WordInType" Type="Self.WordInType" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Root">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="WordInType">
+              <PropertyRef Name="WordID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_WordInType_WordInType">
+          <End Role="WordType" Type="Self.WordType" Multiplicity="1" />
+          <End Role="WordInType" Type="Self.WordInType" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="WordType">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="WordInType">
+              <PropertyRef Name="WordTypeID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="EnglishWordsModelStoreContainer">
+          <EntitySet Name="Root" EntityType="Self.Root" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="WordInType" EntityType="Self.WordInType" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="WordType" EntityType="Self.WordType" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_WordInType_Root" Association="Self.FK_WordInType_Root">
+            <End Role="Root" EntitySet="Root" />
+            <End Role="WordInType" EntitySet="WordInType" />
+          </AssociationSet>
+          <AssociationSet Name="FK_WordInType_WordInType" Association="Self.FK_WordInType_WordInType">
+            <End Role="WordType" EntitySet="WordType" />
+            <End Role="WordInType" EntitySet="WordInType" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="EnglishWordsModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Root">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Parent" Type="Int32" />
+          <Property Name="Word" Type="String" MaxLength="256" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="WordTypes" Relationship="Self.WordInType" FromRole="Root" ToRole="WordType" />
+        </EntityType>
+        <EntityType Name="WordType">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TypeName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="Roots" Relationship="Self.WordInType" FromRole="WordType" ToRole="Root" />
+        </EntityType>
+        <Association Name="WordInType">
+          <End Role="Root" Type="Self.Root" Multiplicity="*" />
+          <End Role="WordType" Type="Self.WordType" Multiplicity="*" />
+        </Association>
+        <EntityContainer Name="EnglishWordsEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Roots" EntityType="Self.Root" />
+          <EntitySet Name="WordTypes" EntityType="Self.WordType" />
+          <AssociationSet Name="WordInType" Association="Self.WordInType">
+            <End Role="Root" EntitySet="Roots" />
+            <End Role="WordType" EntitySet="WordTypes" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="EnglishWordsModelStoreContainer" CdmEntityContainer="EnglishWordsEntities">
+          <EntitySetMapping Name="Roots">
+            <EntityTypeMapping TypeName="EnglishWordsModel.Root">
+              <MappingFragment StoreEntitySet="Root">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Parent" ColumnName="Parent" />
+                <ScalarProperty Name="Word" ColumnName="Word" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="WordTypes">
+            <EntityTypeMapping TypeName="EnglishWordsModel.WordType">
+              <MappingFragment StoreEntitySet="WordType">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="TypeName" ColumnName="TypeName" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <AssociationSetMapping Name="WordInType" TypeName="EnglishWordsModel.WordInType" StoreEntitySet="WordInType">
+            <EndProperty Name="Root">
+              <ScalarProperty Name="ID" ColumnName="WordID" />
+            </EndProperty>
+            <EndProperty Name="WordType">
+              <ScalarProperty Name="ID" ColumnName="WordTypeID" />
+            </EndProperty>
+          </AssociationSetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>
