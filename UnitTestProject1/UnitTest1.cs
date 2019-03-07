@@ -3,10 +3,12 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Web;
+using System.Xml;
 
 namespace UnitTestProject1
 {
@@ -20,7 +22,48 @@ namespace UnitTestProject1
     [TestClass]
     public class UnitTest1
     {
-  
+
+        [TestMethod]
+        public void GetWordFamily()
+        {
+            //var files = Directory.GetFiles(@"F:\netflix_html\other", "*.*");
+            //  var file = File.ReadAllText(
+            //      @"F:\Projects\Geeksltd\Netflix\ConsoleAppWordProcess\bin\Debug\VocabularyCom\186798.txt",
+            //     Encoding.UTF8);
+            var filePath = @"F:\Projects\Geeksltd\Netflix\ConsoleAppWordProcess\bin\Debug\VocabularyCom\186798.txt";
+            // foreach (var f in files)
+            //{
+
+            var doc = new HtmlDocument();
+
+            doc.Load(filePath);
+            var wordFamilyRoot = doc.DocumentNode.Descendants("vcom:wordfamily").ToList();
+            if (wordFamilyRoot.Any())
+            {
+                var data = wordFamilyRoot.FirstOrDefault()?.GetAttributeValue("data", "");
+                var jsonData = System.Web.HttpUtility.HtmlDecode(data);
+                var wordFamily = JsonConvert.DeserializeObject<List<WordFamily>>(jsonData);
+                Trace.WriteLine(jsonData);
+            }
+
+
+
+
+
+
+            Assert.IsTrue(true);
+        }
+        public class WordFamily
+        {
+            public string word { get; set; }
+            public bool hw { get; set; }
+            public string parent { get; set; }
+            public decimal freq { get; set; }
+            public decimal ffreq { get; set; }
+            public int size { get; set; }
+            public int type { get; set; }
+        }
+
 
         [TestMethod]
         public void ConvertCSVtoJson()

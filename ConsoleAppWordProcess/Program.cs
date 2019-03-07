@@ -16,7 +16,9 @@ namespace ConsoleAppWordProcess
             //Task.Factory.StartNew(() => CheckQueue());
             //Task.Factory.StartNew(() => FindImmediatelyNew());
             //Task.Factory.StartNew(() => WordFamilyService.StartCalculate());
-            Task.Factory.StartNew(FindWordFamilyService.StartCalculate);
+            Task.Factory.StartNew(FindWordFamilyService.StartDownloadAsync);
+            Task.Factory.StartNew(FindWordFamilyService.StartDownloadVoabularyTimer);
+
             Console.Read();
         }
 

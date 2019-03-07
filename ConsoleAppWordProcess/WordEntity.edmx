@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="EnglishWordsModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="EnglishWordsModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="Root">
           <Key>
             <PropertyRef Name="ID" />
@@ -12,6 +12,16 @@
           <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="Parent" Type="int" />
           <Property Name="Word" Type="nvarchar" MaxLength="256" Nullable="false" />
+          <Property Name="Grouped" Type="bit" Nullable="false" />
+          <Property Name="VocabularyCom" Type="bit" />
+          <Property Name="DictionaryCom" Type="bit" />
+          <Property Name="VocabularyComStatusCode" Type="int" />
+          <Property Name="DictionaryComStatusCode" Type="int" />
+          <Property Name="CreateDate" Type="datetime" />
+          <Property Name="VocabularyWordFamilyJson" Type="nvarchar(max)" />
+          <Property Name="DictionaryWordFamily" Type="nvarchar" MaxLength="500" />
+          <Property Name="Count" Type="int" />
+          <Property Name="Rank" Type="int" />
         </EntityType>
         <EntityType Name="WordInType">
           <Key>
@@ -28,15 +38,15 @@
           <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="TypeName" Type="nvarchar" MaxLength="50" Nullable="false" />
         </EntityType>
-        <Association Name="FK_WordInType_Root">
-          <End Role="Root" Type="Self.Root" Multiplicity="1" />
-          <End Role="WordInType" Type="Self.WordInType" Multiplicity="*" />
+        <Association Name="FK_Root_Root">
+          <End Role="Root" Type="Self.Root" Multiplicity="0..1" />
+          <End Role="Root1" Type="Self.Root" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Root">
               <PropertyRef Name="ID" />
             </Principal>
-            <Dependent Role="WordInType">
-              <PropertyRef Name="WordID" />
+            <Dependent Role="Root1">
+              <PropertyRef Name="Parent" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -56,49 +66,93 @@
           <EntitySet Name="Root" EntityType="Self.Root" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="WordInType" EntityType="Self.WordInType" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="WordType" EntityType="Self.WordType" Schema="dbo" store:Type="Tables" />
-          <AssociationSet Name="FK_WordInType_Root" Association="Self.FK_WordInType_Root">
+          <AssociationSet Name="FK_Root_Root" Association="Self.FK_Root_Root">
             <End Role="Root" EntitySet="Root" />
-            <End Role="WordInType" EntitySet="WordInType" />
+            <End Role="Root1" EntitySet="Root" />
           </AssociationSet>
           <AssociationSet Name="FK_WordInType_WordInType" Association="Self.FK_WordInType_WordInType">
             <End Role="WordType" EntitySet="WordType" />
             <End Role="WordInType" EntitySet="WordInType" />
           </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="EnglishWordsModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityContainer Name="EnglishWordsEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Roots" EntityType="EnglishWordsModel.Root" />
+          <EntitySet Name="WordInTypes" EntityType="EnglishWordsModel.WordInType" />
+          <EntitySet Name="WordTypes" EntityType="EnglishWordsModel.WordType" />
+          <AssociationSet Name="FK_Root_Root" Association="EnglishWordsModel.FK_Root_Root">
+            <End Role="Root" EntitySet="Roots" />
+            <End Role="Root1" EntitySet="Roots" />
+          </AssociationSet>
+          <AssociationSet Name="FK_WordInType_WordInType" Association="EnglishWordsModel.FK_WordInType_WordInType">
+            <End Role="WordType" EntitySet="WordTypes" />
+            <End Role="WordInType" EntitySet="WordInTypes" />
+          </AssociationSet>
+        </EntityContainer>
         <EntityType Name="Root">
           <Key>
             <PropertyRef Name="ID" />
           </Key>
           <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="Parent" Type="Int32" />
-          <Property Name="Word" Type="String" MaxLength="256" FixedLength="false" Unicode="true" Nullable="false" />
-          <NavigationProperty Name="WordTypes" Relationship="Self.WordInType" FromRole="Root" ToRole="WordType" />
+          <Property Name="Word" Type="String" Nullable="false" MaxLength="256" FixedLength="false" Unicode="true" />
+          <Property Name="Grouped" Type="Boolean" Nullable="false" />
+          <Property Name="VocabularyCom" Type="Boolean" />
+          <Property Name="DictionaryCom" Type="Boolean" />
+          <Property Name="VocabularyComStatusCode" Type="Int32" />
+          <Property Name="DictionaryComStatusCode" Type="Int32" />
+          <Property Name="CreateDate" Type="DateTime" Precision="3" />
+          <Property Name="VocabularyWordFamilyJson" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="DictionaryWordFamily" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Root1" Relationship="EnglishWordsModel.FK_Root_Root" FromRole="Root" ToRole="Root1" />
+          <NavigationProperty Name="Root2" Relationship="EnglishWordsModel.FK_Root_Root" FromRole="Root1" ToRole="Root" />
+          <Property Name="Count" Type="Int32" />
+          <Property Name="Rank" Type="Int32" />
+        </EntityType>
+        <EntityType Name="WordInType">
+          <Key>
+            <PropertyRef Name="WordID" />
+            <PropertyRef Name="WordTypeID" />
+          </Key>
+          <Property Name="WordID" Type="Int32" Nullable="false" />
+          <Property Name="WordTypeID" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="WordType" Relationship="EnglishWordsModel.FK_WordInType_WordInType" FromRole="WordInType" ToRole="WordType" />
         </EntityType>
         <EntityType Name="WordType">
           <Key>
             <PropertyRef Name="ID" />
           </Key>
           <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="TypeName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
-          <NavigationProperty Name="Roots" Relationship="Self.WordInType" FromRole="WordType" ToRole="Root" />
+          <Property Name="TypeName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="WordInTypes" Relationship="EnglishWordsModel.FK_WordInType_WordInType" FromRole="WordType" ToRole="WordInType" />
         </EntityType>
-        <Association Name="WordInType">
-          <End Role="Root" Type="Self.Root" Multiplicity="*" />
-          <End Role="WordType" Type="Self.WordType" Multiplicity="*" />
+        <Association Name="FK_Root_Root">
+          <End Type="EnglishWordsModel.Root" Role="Root" Multiplicity="0..1" />
+          <End Type="EnglishWordsModel.Root" Role="Root1" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Root">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Root1">
+              <PropertyRef Name="Parent" />
+            </Dependent>
+          </ReferentialConstraint>
         </Association>
-        <EntityContainer Name="EnglishWordsEntities" annotation:LazyLoadingEnabled="true">
-          <EntitySet Name="Roots" EntityType="Self.Root" />
-          <EntitySet Name="WordTypes" EntityType="Self.WordType" />
-          <AssociationSet Name="WordInType" Association="Self.WordInType">
-            <End Role="Root" EntitySet="Roots" />
-            <End Role="WordType" EntitySet="WordTypes" />
-          </AssociationSet>
-        </EntityContainer>
+        <Association Name="FK_WordInType_WordInType">
+          <End Type="EnglishWordsModel.WordType" Role="WordType" Multiplicity="1" />
+          <End Type="EnglishWordsModel.WordInType" Role="WordInType" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="WordType">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="WordInType">
+              <PropertyRef Name="WordTypeID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -108,28 +162,38 @@
           <EntitySetMapping Name="Roots">
             <EntityTypeMapping TypeName="EnglishWordsModel.Root">
               <MappingFragment StoreEntitySet="Root">
-                <ScalarProperty Name="ID" ColumnName="ID" />
-                <ScalarProperty Name="Parent" ColumnName="Parent" />
+                <ScalarProperty Name="Rank" ColumnName="Rank" />
+                <ScalarProperty Name="Count" ColumnName="Count" />
+                <ScalarProperty Name="DictionaryWordFamily" ColumnName="DictionaryWordFamily" />
+                <ScalarProperty Name="VocabularyWordFamilyJson" ColumnName="VocabularyWordFamilyJson" />
+                <ScalarProperty Name="CreateDate" ColumnName="CreateDate" />
+                <ScalarProperty Name="DictionaryComStatusCode" ColumnName="DictionaryComStatusCode" />
+                <ScalarProperty Name="VocabularyComStatusCode" ColumnName="VocabularyComStatusCode" />
+                <ScalarProperty Name="DictionaryCom" ColumnName="DictionaryCom" />
+                <ScalarProperty Name="VocabularyCom" ColumnName="VocabularyCom" />
+                <ScalarProperty Name="Grouped" ColumnName="Grouped" />
                 <ScalarProperty Name="Word" ColumnName="Word" />
+                <ScalarProperty Name="Parent" ColumnName="Parent" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="WordInTypes">
+            <EntityTypeMapping TypeName="EnglishWordsModel.WordInType">
+              <MappingFragment StoreEntitySet="WordInType">
+                <ScalarProperty Name="WordTypeID" ColumnName="WordTypeID" />
+                <ScalarProperty Name="WordID" ColumnName="WordID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="WordTypes">
             <EntityTypeMapping TypeName="EnglishWordsModel.WordType">
               <MappingFragment StoreEntitySet="WordType">
-                <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="TypeName" ColumnName="TypeName" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <AssociationSetMapping Name="WordInType" TypeName="EnglishWordsModel.WordInType" StoreEntitySet="WordInType">
-            <EndProperty Name="Root">
-              <ScalarProperty Name="ID" ColumnName="WordID" />
-            </EndProperty>
-            <EndProperty Name="WordType">
-              <ScalarProperty Name="ID" ColumnName="WordTypeID" />
-            </EndProperty>
-          </AssociationSetMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

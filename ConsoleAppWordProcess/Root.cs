@@ -17,14 +17,25 @@ namespace ConsoleAppWordProcess
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Root()
         {
-            this.WordTypes = new HashSet<WordType>();
+            this.Root1 = new HashSet<Root>();
         }
     
         public int ID { get; set; }
         public Nullable<int> Parent { get; set; }
         public string Word { get; set; }
+        public bool Grouped { get; set; }
+        public Nullable<bool> VocabularyCom { get; set; }
+        public Nullable<bool> DictionaryCom { get; set; }
+        public Nullable<int> VocabularyComStatusCode { get; set; }
+        public Nullable<int> DictionaryComStatusCode { get; set; }
+        public Nullable<System.DateTime> CreateDate { get; set; }
+        public string VocabularyWordFamilyJson { get; set; }
+        public string DictionaryWordFamily { get; set; }
+        public Nullable<int> Count { get; set; }
+        public Nullable<int> Rank { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<WordType> WordTypes { get; set; }
+        public virtual ICollection<Root> Root1 { get; set; }
+        public virtual Root Root2 { get; set; }
     }
 }
