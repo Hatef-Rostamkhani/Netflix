@@ -5,6 +5,15 @@
     <!-- SSDL content -->
     <edmx:StorageModels>
     <Schema Namespace="EnglishWordsModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="RankAndCount">
+          <Key>
+            <PropertyRef Name="Rank" />
+          </Key>
+          <Property Name="Rank" Type="int" Nullable="false" />
+          <Property Name="Word" Type="nvarchar" MaxLength="500" Nullable="false" />
+          <Property Name="OtherForms" Type="nvarchar" MaxLength="4000" />
+          <Property Name="NumberTimes" Type="int" />
+        </EntityType>
         <EntityType Name="Root">
           <Key>
             <PropertyRef Name="ID" />
@@ -21,6 +30,28 @@
           <Property Name="VocabularyWordFamilyJson" Type="nvarchar(max)" />
           <Property Name="DictionaryWordFamily" Type="nvarchar" MaxLength="500" />
           <Property Name="Count" Type="int" />
+          <Property Name="Rank" Type="int" />
+          <Property Name="RankFromPaymon" Type="int" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'EnglishWords.dbo.WordCombination' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="WordCombination">
+          <Key>
+            <PropertyRef Name="Word1" />
+            <PropertyRef Name="Word2" />
+            <PropertyRef Name="Count" />
+            <PropertyRef Name="Rank" />
+          </Key>
+          <Property Name="Word1" Type="nvarchar" MaxLength="200" Nullable="false" />
+          <Property Name="Word2" Type="nvarchar" MaxLength="200" Nullable="false" />
+          <Property Name="Count" Type="int" Nullable="false" />
+          <Property Name="Rank" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="WordFromPaymon">
+          <Key>
+            <PropertyRef Name="Word" />
+          </Key>
+          <Property Name="Word" Type="nvarchar" MaxLength="50" Nullable="false" />
           <Property Name="Rank" Type="int" />
         </EntityType>
         <EntityType Name="WordInType">
@@ -63,9 +94,19 @@
           </ReferentialConstraint>
         </Association>
         <EntityContainer Name="EnglishWordsModelStoreContainer">
+          <EntitySet Name="RankAndCount" EntityType="Self.RankAndCount" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Root" EntityType="Self.Root" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="WordFromPaymon" EntityType="Self.WordFromPaymon" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="WordInType" EntityType="Self.WordInType" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="WordType" EntityType="Self.WordType" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="WordCombination" EntityType="Self.WordCombination" store:Type="Tables" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [WordCombination].[Word1] AS [Word1], 
+    [WordCombination].[Word2] AS [Word2], 
+    [WordCombination].[Count] AS [Count], 
+    [WordCombination].[Rank] AS [Rank]
+    FROM [dbo].[WordCombination] AS [WordCombination]</DefiningQuery>
+          </EntitySet>
           <AssociationSet Name="FK_Root_Root" Association="Self.FK_Root_Root">
             <End Role="Root" EntitySet="Root" />
             <End Role="Root1" EntitySet="Root" />
@@ -91,6 +132,9 @@
             <End Role="WordType" EntitySet="WordTypes" />
             <End Role="WordInType" EntitySet="WordInTypes" />
           </AssociationSet>
+          <EntitySet Name="RankAndCounts" EntityType="EnglishWordsModel.RankAndCount" />
+          <EntitySet Name="WordFromPaymons" EntityType="EnglishWordsModel.WordFromPaymon" />
+          <EntitySet Name="WordCombinations" EntityType="EnglishWordsModel.WordCombination" />
         </EntityContainer>
         <EntityType Name="Root">
           <Key>
@@ -111,6 +155,7 @@
           <NavigationProperty Name="Root2" Relationship="EnglishWordsModel.FK_Root_Root" FromRole="Root1" ToRole="Root" />
           <Property Name="Count" Type="Int32" />
           <Property Name="Rank" Type="Int32" />
+          <Property Name="RankFromPaymon" Type="Int32" />
         </EntityType>
         <EntityType Name="WordInType">
           <Key>
@@ -153,6 +198,34 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="RankAndCount">
+          <Key>
+            <PropertyRef Name="Rank" />
+          </Key>
+          <Property Name="Rank" Type="Int32" Nullable="false" />
+          <Property Name="Word" Type="String" Nullable="false" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="OtherForms" Type="String" MaxLength="4000" FixedLength="false" Unicode="true" />
+          <Property Name="NumberTimes" Type="Int32" />
+        </EntityType>
+        <EntityType Name="WordFromPaymon">
+          <Key>
+            <PropertyRef Name="Word" />
+          </Key>
+          <Property Name="Word" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Rank" Type="Int32" />
+        </EntityType>
+        <EntityType Name="WordCombination">
+          <Key>
+            <PropertyRef Name="Word1" />
+            <PropertyRef Name="Word2" />
+            <PropertyRef Name="Count" />
+            <PropertyRef Name="Rank" />
+          </Key>
+          <Property Name="Word1" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="Word2" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="Count" Type="Int32" Nullable="false" />
+          <Property Name="Rank" Type="Int32" Nullable="false" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -162,6 +235,7 @@
           <EntitySetMapping Name="Roots">
             <EntityTypeMapping TypeName="EnglishWordsModel.Root">
               <MappingFragment StoreEntitySet="Root">
+                <ScalarProperty Name="RankFromPaymon" ColumnName="RankFromPaymon" />
                 <ScalarProperty Name="Rank" ColumnName="Rank" />
                 <ScalarProperty Name="Count" ColumnName="Count" />
                 <ScalarProperty Name="DictionaryWordFamily" ColumnName="DictionaryWordFamily" />
@@ -191,6 +265,34 @@
               <MappingFragment StoreEntitySet="WordType">
                 <ScalarProperty Name="TypeName" ColumnName="TypeName" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="RankAndCounts">
+            <EntityTypeMapping TypeName="EnglishWordsModel.RankAndCount">
+              <MappingFragment StoreEntitySet="RankAndCount">
+                <ScalarProperty Name="NumberTimes" ColumnName="NumberTimes" />
+                <ScalarProperty Name="OtherForms" ColumnName="OtherForms" />
+                <ScalarProperty Name="Word" ColumnName="Word" />
+                <ScalarProperty Name="Rank" ColumnName="Rank" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="WordFromPaymons">
+            <EntityTypeMapping TypeName="EnglishWordsModel.WordFromPaymon">
+              <MappingFragment StoreEntitySet="WordFromPaymon">
+                <ScalarProperty Name="Rank" ColumnName="Rank" />
+                <ScalarProperty Name="Word" ColumnName="Word" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="WordCombinations">
+            <EntityTypeMapping TypeName="EnglishWordsModel.WordCombination">
+              <MappingFragment StoreEntitySet="WordCombination">
+                <ScalarProperty Name="Rank" ColumnName="Rank" />
+                <ScalarProperty Name="Count" ColumnName="Count" />
+                <ScalarProperty Name="Word2" ColumnName="Word2" />
+                <ScalarProperty Name="Word1" ColumnName="Word1" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

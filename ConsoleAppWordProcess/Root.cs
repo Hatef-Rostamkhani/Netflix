@@ -33,6 +33,7 @@ namespace ConsoleAppWordProcess
         public string DictionaryWordFamily { get; set; }
         public Nullable<int> Count { get; set; }
         public Nullable<int> Rank { get; set; }
+        public Nullable<int> RankFromPaymon { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Root> Root1 { get; set; }

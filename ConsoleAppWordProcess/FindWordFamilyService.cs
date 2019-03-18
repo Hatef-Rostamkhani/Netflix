@@ -1,5 +1,6 @@
 ﻿using HtmlAgilityPack;
 using Newtonsoft.Json;
+using Olive.Csv;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -35,6 +36,100 @@ namespace ConsoleAppWordProcess
             }
 
             return sb.ToString();
+        }
+
+        public static void MakeCountFowWordSave()
+        {
+            var entity = new EnglishWordsEntities();
+            Console.WriteLine("Fething data....");
+            var data = entity.RankAndCounts.ToList();
+            Console.WriteLine("Convert To CSV....");
+            var csv = data.ToCsv();
+            Console.WriteLine("Savging to file....");
+            //var csv = JsonConvert.SerializeObject(data.Take(2000).ToList());
+            File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + "\\RankAndCounts.csv", csv, Encoding.UTF8);
+        }
+
+        public static void MakeCountFowWord()
+        {
+
+
+
+            var entity = new EnglishWordsEntities();
+            Console.WriteLine($"Fetching Roots");
+            var allroot = entity.Roots.Select(x => new
+            {
+                x.ID,
+                Word = x.Word.ToLower().Trim(),
+                x.Count
+            }).ToList();
+            Console.WriteLine($"Fetching RankAndCounts");
+            var paymonWord = entity.RankAndCounts.Where(x => x.NumberTimes == null).ToList();
+            List<Task> taskList = new List<Task>();
+            foreach (var word in paymonWord)
+            {
+                taskList.Add(Task.Factory.StartNew(() =>
+                {
+                    var rowWord =
+                        (word.Word.Trim().ToLower() + "," + word.OtherForms.Trim().ToLower()).Split(new[] { ',' },
+                            StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim().ToLower()).ToList();
+                    var sum = allroot.Where(x => rowWord.Contains(x.Word)).Select(x => x.Count).DefaultIfEmpty(0).Sum();
+                    word.NumberTimes = sum;
+                    var entity2 = new EnglishWordsEntities();
+                    entity2.RankAndCounts.AddOrUpdate(word);
+                    entity2.SaveChanges();
+                    Console.WriteLine($"{word.Rank}\t{rowWord.Aggregate((x, y) => x + "," + y)}\t{sum}");
+                }));
+                if (taskList.Count > 20)
+                {
+                    Task.WaitAll(taskList.ToArray());
+                    taskList.Clear();
+                }
+            }
+
+        }
+
+        public static void GetWordRank()
+        {
+            var allWords = File.ReadAllLines(@"D:\temp\txt\words_Rank.csv");
+            List<Task> taskList = new List<Task>();
+            foreach (var allWord in allWords)
+            {
+                taskList.Add(Task.Factory.StartNew(() =>
+                {
+                    var splited = allWord.Split(new[] { ',', ' ', '"' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (splited.Length > 0)
+                    {
+                        if (int.TryParse(splited[0], out var id))
+                        {
+
+                            var entity = new EnglishWordsEntities();
+                            var listWord = splited.ToList();
+                            listWord.RemoveAt(0);
+                            var roots = entity.Roots.Where(x => listWord.Contains(x.Word)).ToList();
+                            foreach (var root in roots)
+                            {
+                                root.RankFromPaymon = id;
+                                entity.Roots.AddOrUpdate(root);
+                            }
+                            entity.SaveChanges();
+                            Console.WriteLine("Saved Words ... " + allWord);
+                        }
+
+
+                    }
+                }));
+                if (taskList.Count > 10)
+                {
+                    Task.WaitAll(taskList.ToArray());
+                    taskList.Clear();
+                }
+            }
+            if (taskList.Count > 10)
+            {
+                Task.WaitAll(taskList.ToArray());
+                taskList.Clear();
+            }
         }
 
         public static void StartDownloadAsync()
@@ -118,8 +213,11 @@ namespace ConsoleAppWordProcess
             //StartDownloadVoabulary(null);
 
 
-            MakeWordFamiliyFromDataBase();
+            //  MakeWordFamiliyFromDataBase();
             //MakeCount();
+
+
+            GetWordRank();
 
 
         }
@@ -660,142 +758,123 @@ namespace ConsoleAppWordProcess
             return row;
         }
 
+        static List<string> wordsCombinations = new List<string>();
 
-        public static void StartCalculate()
+        private static void CalculateCombinations(List<List<string>> range, int indexTh)
         {
-
-            //var processWords = File.ReadAllLines(AppDomain.CurrentDomain.BaseDirectory + "\\needprocess.txt").ToList();
-
-
-            //Console.WriteLine("Preparing words");
-            var AllWords = File.ReadAllLines(@"D:\temp\txt\txt.txt").ToList();
-            List<string> processWords = new List<string>();
-            foreach (var c in AllWords)
+            try
             {
-                var res = NormalString(c).Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                if (res.Any())
-                    processWords.AddRange(res);
-            }
-
-            // var groupedWord = processWords.GroupBy(x => x).ToDictionary(kvp => kvp.Key, kvp => kvp.Count());
-            //var wordList = File.ReadAllText(@"D:\temp\txt\Word forms.csv").Split(new char[] { ',', '"', '\r', '\n', ' ' },
-            //    StringSplitOptions.RemoveEmptyEntries).Distinct().ToList();
-
-
-            //processWords.RemoveAll(x => wordList.Contains(x));
-
-            var entity = new EnglishWordsEntities();
-            entity.Configuration.AutoDetectChangesEnabled = false;
-            entity.Configuration.ValidateOnSaveEnabled = false;
-            var exists = entity.Roots.Select(x => x.Word).ToList();
-
-            var distinct = processWords.Distinct().ToList().OrderBy(x => x).ToList().Where(x => !exists.Contains(x)).ToList();
-
-            //File.WriteAllLines(AppDomain.CurrentDomain.BaseDirectory + "\\MustAddToDatabase.txt", distinct,
-            //    Encoding.UTF8);
-            entity.BulkInsert(distinct.Select(x => new Root()
-            {
-                Word = x,
-                Grouped = true,
-            }));
-            //entity.Roots.AddRange(distinct.Select(x => new Root()
-            //{
-            //    Word = x
-            //}));
-            //entity.SaveChanges();
-
-
-
-            Console.WriteLine("Added to database");
-            Console.Read();
-
-
-
-
-
-            ConcurrentDictionary<string, List<string>> familyGroup = new ConcurrentDictionary<string, List<string>>();
-
-            var root = entity.Roots.ToList();
-
-            //File.WriteAllLines(AppDomain.CurrentDomain.BaseDirectory + "\\needprocess.txt", processWords, Encoding.UTF8);
-            var container = distinct.Where(x => root.Select(c => c.Word).Contains(x)).ToList();
-            foreach (var word in container)
-            {
-                var rootWord = root.FirstOrDefault(x => x.Word == word);
-                if (rootWord != null)
+                Console.ForegroundColor = ConsoleColor.White;
+                for (var i = 0; i < range.Count; i++)
                 {
-                    if (rootWord.Parent.HasValue)
+                    var line = range[i];
+                    for (var index = 0; index < line.Count - 1; index++)
                     {
-                        familyGroup.AddOrUpdate(rootWord.Root2.Word, new List<string>() { rootWord.Word },
-                            (key, old) =>
-                            {
-                                if (!old.Contains(rootWord.Word))
-                                    old.Add(rootWord.Word);
-                                return old;
-                            });
-                    }
-                    else
-                    {
-                        familyGroup.AddOrUpdate(rootWord.Word, new List<string>() { rootWord.Word },
-                            (key, old) =>
-                            {
-                                if (!old.Contains(rootWord.Word))
-                                    old.Add(rootWord.Word);
-                                return old;
-                            });
+                        var word = line[index].ToLower();
+                        var word2 = line[index + 1].ToLower();
+                        lock (wordsCombinations)
+                            //File.AppendAllText(AppDomain.CurrentDomain.BaseDirectory + $"\\Combinations{indexTh}.txt",
+                            //  word + " " + word2 + "\r\n", Encoding.UTF8);
+                            wordsCombinations.Add(word + " " + word2);
                     }
 
+                    if (i % 100000 == 0 || i % 10000 == 0)
+                    {
+
+                        Console.WriteLine("Thread " + indexTh + " index " + i);
+                    }
                 }
             }
-
-            foreach (var item in familyGroup)
+            catch (Exception ex)
             {
-                Console.WriteLine($"{item.Key} : {item.Value.Aggregate((x, y) => x + "," + y)}");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine(ex);
             }
-
-
-
-            //List<Task> currenTask = new List<Task>();
-
-            //var threadCount = 10;
-            //var count = lines.Count / threadCount;
-
-
-            //for (var indexTh = -1; indexTh < threadCount;)
-            //{
-
-            //    indexTh++;
-            //    if (indexTh < threadCount)
-            //    {
-            //        Console.WriteLine("Start Thread " + indexTh);
-
-            //        var forLast = (lines.Count - (indexTh * count));
-            //        var range = lines.GetRange(count * indexTh,
-            //            indexTh + 1 == threadCount ? forLast : count);
-            //        currenTask.Add(Task.Factory.StartNew(() =>
-            //        {
-            //            foreach (var line in range)
-            //            {
-            //                var words = line.Split(new[] { ',', ' ', '\"' }, StringSplitOptions.RemoveEmptyEntries);
-            //                var countOfWord = groupedWord.Where(x => words.Contains(x.Key)).Select(x => x.Value)
-            //                    .Sum();
-            //                Console.WriteLine($"{line} : {countOfWord}");
-            //                sb.AppendLine($"{line}, {countOfWord}");
-            //            }
-
-            //        }));
-            //        //ProcessLines(range[i], i + (count * indexTh));
-            //    }
-
-
-            //}
-
-            //Task.WaitAll(currenTask.ToArray());
-            // File.WriteAllText(@"D:\temp\txt\WordForms.txt", sb.ToString(), Encoding.UTF8);
-
-
-
         }
+        /// <summary>
+        /// Find Word Combinations
+        /// </summary>
+        public static void CalculateWordCombinations()
+        {
+            try
+            {
+                //var processWords = File.ReadAllLines(AppDomain.CurrentDomain.BaseDirectory + "\\needprocess.txt").ToList();
 
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine("Preparing read subtitle");
+                var AllWords = File.ReadAllLines(@"D:\temp\txt\txt.txt").ToList();
+                var processWords = new List<List<string>>();
+                foreach (var c in AllWords)
+                {
+                    var res = NormalString(c).Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (res.Any() && res.Length > 1)
+                        processWords.Add(res.ToList());
+                }
+
+                Console.WriteLine($"All Lines {processWords.Count}");
+                Console.WriteLine("Preparing processWords");
+
+
+                var threadCount = 10;
+                var count = processWords.Count / threadCount;
+
+
+                var taskList = new List<Task>();
+
+
+
+
+                for (var indexTh = -1; indexTh < threadCount;)
+                {
+                    indexTh++;
+                    if (indexTh < threadCount)
+                    {
+                        var forLast = processWords.Count - (indexTh * count);
+                        var range = processWords.GetRange(count * indexTh,
+                            indexTh + 1 == threadCount ? forLast : count);
+                        Console.WriteLine("Start Thread " + indexTh + " count of lines " + range.Count);
+                        var th = indexTh;
+                        taskList.Add(Task.Factory.StartNew(() => CalculateCombinations(range, th)));
+
+                    }
+                }
+
+                Task.WaitAll(taskList.ToArray());
+                Console.WriteLine("Task Finished");
+
+                // return;
+
+                Console.WriteLine("Grouping...");
+                var dic = wordsCombinations.GroupBy(x => x).ToDictionary(kvp => kvp.Key, kvp => kvp.Count());
+                Console.WriteLine("Grouped");
+
+                Console.WriteLine("Ordering...");
+                var needToAdd = dic.Select(x => new WordCombination
+                {
+                    Word1 = x.Key.Split(' ')[0],
+                    Word2 = x.Key.Split(' ')[1],
+                    Count = x.Value
+
+                }).ToList().OrderByDescending(x => x.Count).Select((r, i) => new WordCombination()
+                {
+                    Word1 = r.Word1,
+                    Word2 = r.Word2,
+                    Count = r.Count,
+                    Rank = i + 1
+                }).ToList();
+
+                Console.WriteLine("Ordered");
+
+                Console.WriteLine("Inserting...");
+                var entity = new EnglishWordsEntities();
+                entity.BulkInsert(needToAdd);
+                Console.WriteLine("Inserted");
+            }
+            catch (Exception e)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine(e);
+            }
+        }
     }
 }

@@ -70,7 +70,7 @@ namespace ConsoleAppWordProcess
                 {
                     Console.WriteLine("Start Thread " + indexTh);
 
-                    var forLast = (lines.Count - (indexTh * count));
+                    var forLast = lines.Count - (indexTh * count);
                     var range = lines.GetRange(count * indexTh,
                         indexTh + 1 == threadCount ? forLast : count);
                     currenTask.Add(Task.Factory.StartNew(() =>
@@ -87,8 +87,6 @@ namespace ConsoleAppWordProcess
                     }));
                     //ProcessLines(range[i], i + (count * indexTh));
                 }
-
-
             }
 
             Task.WaitAll(currenTask.ToArray());

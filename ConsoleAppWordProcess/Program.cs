@@ -13,12 +13,12 @@ namespace ConsoleAppWordProcess
     {
         static void Main(string[] args)
         {
-            //Task.Factory.StartNew(() => CheckQueue());
-            //Task.Factory.StartNew(() => FindImmediatelyNew());
-            //Task.Factory.StartNew(() => WordFamilyService.StartCalculate());
-            Task.Factory.StartNew(FindWordFamilyService.StartDownloadAsync);
-            Task.Factory.StartNew(FindWordFamilyService.StartDownloadVoabularyTimer);
-
+            // Task.Factory.StartNew(() => CheckQueue());
+            // Task.Factory.StartNew(() => FindImmediatelyNew());
+            // Task.Factory.StartNew(() => WordFamilyService.StartCalculate());
+            // Task.Factory.StartNew(FindWordFamilyService.StartDownloadAsync);
+            // Task.Factory.StartNew(FindWordFamilyService.StartDownloadVoabularyTimer);
+            Task.Factory.StartNew(NetflixService2.ExtractInfoFromNetflixInfoPages);
             Console.Read();
         }
 

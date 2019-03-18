@@ -28,5 +28,8 @@ namespace ConsoleAppWordProcess
         public virtual DbSet<Root> Roots { get; set; }
         public virtual DbSet<WordInType> WordInTypes { get; set; }
         public virtual DbSet<WordType> WordTypes { get; set; }
+        public virtual DbSet<RankAndCount> RankAndCounts { get; set; }
+        public virtual DbSet<WordFromPaymon> WordFromPaymons { get; set; }
+        public virtual DbSet<WordCombination> WordCombinations { get; set; }
     }
 }

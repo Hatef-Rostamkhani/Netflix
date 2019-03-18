@@ -10,6 +10,9 @@
         <EntityTypeShape EntityType="EnglishWordsModel.WordType" Width="1.5" PointX="2.75" PointY="0.875" />
         <AssociationConnector Association="EnglishWordsModel.FK_Root_Root" />
         <AssociationConnector Association="EnglishWordsModel.FK_WordInType_WordInType" />
+        <EntityTypeShape EntityType="EnglishWordsModel.RankAndCount" Width="1.5" PointX="0.75" PointY="5.75" />
+        <EntityTypeShape EntityType="EnglishWordsModel.WordFromPaymon" Width="1.5" PointX="7.375" PointY="0.75" />
+        <EntityTypeShape EntityType="EnglishWordsModel.WordCombination" Width="1.5" PointX="3.375" PointY="3.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
