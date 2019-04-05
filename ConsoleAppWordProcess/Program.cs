@@ -9,8 +9,10 @@ using System.Threading.Tasks;
 
 namespace ConsoleAppWordProcess
 {
-    class Program
+    public class Program
     {
+        public static CancellationToken token = new CancellationToken();
+        public static Task currentTask = null;
         static void Main(string[] args)
         {
             // Task.Factory.StartNew(() => CheckQueue());
@@ -18,13 +20,52 @@ namespace ConsoleAppWordProcess
             // Task.Factory.StartNew(() => WordFamilyService.StartCalculate());
             // Task.Factory.StartNew(FindWordFamilyService.StartDownloadAsync);
             // Task.Factory.StartNew(FindWordFamilyService.StartDownloadVoabularyTimer);
-            Task.Factory.StartNew(NetflixService2.ExtractInfoFromNetflixInfoPages);
+            //ImportJokes.ExportCSV();
+            //currentTask = Task.Factory.StartNew(TrasnlateService.StartTask, token);
+            currentTask = Task.Factory.StartNew(OxfordService.StartTask, token);
+
+
+            //ConvertToJson();
             Console.Read();
+
+        }
+
+        private static void ConvertToJson()
+        {
+            EnglishWordsEntities entity = new EnglishWordsEntities();
+            var path = Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "\\JsonFile");
+            var languages = entity.Languages.ToList();// entity.GetCompletedLanguages();
+            var imported = Directory.GetFiles(path.FullName, "*.*")
+                .Select(x => x.Split('\\').LastOrDefault().Split('.').FirstOrDefault()).ToList();
+            var needToExport = languages.Where(x => !imported.Contains(x.LanguageCode)).ToList();
+            foreach (var lan in needToExport)
+            {
+                var sb = new StringBuilder();
+                var allData = (from f in entity.AllWordFromPaymons
+                               join t in entity.WordTranslates on f.ID equals t.WordID
+                               where f.IsPrimary == true && t.LanguageId == lan.ID
+                               orderby f.Word
+
+                               select new Result1
+                               {
+                                   Word = f.Word,
+                                   Translated = t.Translated
+                               }).ToList().GroupBy(car => car.Word)
+                    .Select(g => g.First())
+                    .ToList();
+
+                foreach (var t in allData)
+                {
+                    sb.Append($"\"{t.Word}\": \"{t.Translated}\", ");
+                }
+                File.WriteAllText(path.FullName + "\\" + lan.LanguageCode + ".json", "{" + sb.ToString().Trim(',', ' ') + "}", Encoding.UTF8);
+                Console.WriteLine("Code " + lan.LanguageCode);
+            }
         }
 
         public static string NormalString(string allText)
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             foreach (var c in allText)
             {
                 if (char.IsLetter(c) || c == '\'')

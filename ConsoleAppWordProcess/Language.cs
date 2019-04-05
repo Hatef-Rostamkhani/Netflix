@@ -12,18 +12,9 @@ namespace ConsoleAppWordProcess
     using System;
     using System.Collections.Generic;
     
-    public partial class WordType
+    public partial class Language
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public WordType()
-        {
-            this.WordInTypes = new HashSet<WordInType>();
-        }
-    
         public int ID { get; set; }
-        public string TypeName { get; set; }
-    
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<WordInType> WordInTypes { get; set; }
+        public string LanguageCode { get; set; }
     }
 }

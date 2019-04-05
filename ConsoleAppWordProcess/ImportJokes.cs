@@ -41,12 +41,12 @@ namespace ConsoleAppWordProcess
         {
             var entity = new EnglishWordsEntities();
             Console.WriteLine("Fething data....");
-            var data = entity.Jokes.ToList();
+            var data = entity.GetJokeBest().ToList();
             Console.WriteLine("Convert To CSV....");
             var csv = data.ToCsv();
             Console.WriteLine("Savging to file....");
             //var csv = JsonConvert.SerializeObject(data.Take(2000).ToList());
-            File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + "\\joke.csv", csv, Encoding.UTF8);
+            File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + "\\joke_has_score.csv", csv, Encoding.UTF8);
         }
 
         public static List<Joke> ImportFile(string fileName, JokeSourceEnum source)

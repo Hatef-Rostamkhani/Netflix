@@ -849,25 +849,25 @@ namespace ConsoleAppWordProcess
                 Console.WriteLine("Grouped");
 
                 Console.WriteLine("Ordering...");
-                var needToAdd = dic.Select(x => new WordCombination
-                {
-                    Word1 = x.Key.Split(' ')[0],
-                    Word2 = x.Key.Split(' ')[1],
-                    Count = x.Value
+                //var needToAdd = dic.Select(x => new WordCombination
+                //{
+                //    Word1 = x.Key.Split(' ')[0],
+                //    Word2 = x.Key.Split(' ')[1],
+                //    Count = x.Value
 
-                }).ToList().OrderByDescending(x => x.Count).Select((r, i) => new WordCombination()
-                {
-                    Word1 = r.Word1,
-                    Word2 = r.Word2,
-                    Count = r.Count,
-                    Rank = i + 1
-                }).ToList();
+                //}).ToList().OrderByDescending(x => x.Count).Select((r, i) => new WordCombination()
+                //{
+                //    Word1 = r.Word1,
+                //    Word2 = r.Word2,
+                //    Count = r.Count,
+                //    Rank = i + 1
+                //}).ToList();
 
                 Console.WriteLine("Ordered");
 
                 Console.WriteLine("Inserting...");
                 var entity = new EnglishWordsEntities();
-                entity.BulkInsert(needToAdd);
+                // entity.BulkInsert(needToAdd);
                 Console.WriteLine("Inserted");
             }
             catch (Exception e)

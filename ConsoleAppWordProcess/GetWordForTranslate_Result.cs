@@ -10,13 +10,13 @@
 namespace ConsoleAppWordProcess
 {
     using System;
-    using System.Collections.Generic;
     
-    public partial class RankAndCount
+    public partial class GetWordForTranslate_Result
     {
-        public int Rank { get; set; }
+        public int WordID { get; set; }
         public string Word { get; set; }
-        public string OtherForms { get; set; }
-        public Nullable<int> NumberTimes { get; set; }
+        public int LangId { get; set; }
+        public string LanguageCode { get; set; }
+        public string Translated { get; set; }
     }
 }

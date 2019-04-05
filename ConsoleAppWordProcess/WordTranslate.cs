@@ -12,9 +12,11 @@ namespace ConsoleAppWordProcess
     using System;
     using System.Collections.Generic;
     
-    public partial class WordFromPaymon
+    public partial class WordTranslate
     {
-        public string Word { get; set; }
-        public Nullable<int> Rank { get; set; }
+        public int WordID { get; set; }
+        public int LanguageId { get; set; }
+        public string Translated { get; set; }
+        public Nullable<System.DateTime> CreateDate { get; set; }
     }
 }

@@ -5,297 +5,214 @@
     <!-- SSDL content -->
     <edmx:StorageModels>
     <Schema Namespace="EnglishWordsModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
-        <EntityType Name="RankAndCount">
-          <Key>
-            <PropertyRef Name="Rank" />
-          </Key>
-          <Property Name="Rank" Type="int" Nullable="false" />
-          <Property Name="Word" Type="nvarchar" MaxLength="500" Nullable="false" />
-          <Property Name="OtherForms" Type="nvarchar" MaxLength="4000" />
-          <Property Name="NumberTimes" Type="int" />
-        </EntityType>
-        <EntityType Name="Root">
+        <EntityType Name="AllWordFromPaymon">
           <Key>
             <PropertyRef Name="ID" />
           </Key>
           <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="Parent" Type="int" />
-          <Property Name="Word" Type="nvarchar" MaxLength="256" Nullable="false" />
-          <Property Name="Grouped" Type="bit" Nullable="false" />
-          <Property Name="VocabularyCom" Type="bit" />
-          <Property Name="DictionaryCom" Type="bit" />
-          <Property Name="VocabularyComStatusCode" Type="int" />
-          <Property Name="DictionaryComStatusCode" Type="int" />
-          <Property Name="CreateDate" Type="datetime" />
-          <Property Name="VocabularyWordFamilyJson" Type="nvarchar(max)" />
-          <Property Name="DictionaryWordFamily" Type="nvarchar" MaxLength="500" />
-          <Property Name="Count" Type="int" />
-          <Property Name="Rank" Type="int" />
-          <Property Name="RankFromPaymon" Type="int" />
-        </EntityType>
-        <!--Errors Found During Generation:
-warning 6002: The table/view 'EnglishWords.dbo.WordCombination' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
-        <EntityType Name="WordCombination">
-          <Key>
-            <PropertyRef Name="Word1" />
-            <PropertyRef Name="Word2" />
-            <PropertyRef Name="Count" />
-            <PropertyRef Name="Rank" />
-          </Key>
-          <Property Name="Word1" Type="nvarchar" MaxLength="200" Nullable="false" />
-          <Property Name="Word2" Type="nvarchar" MaxLength="200" Nullable="false" />
-          <Property Name="Count" Type="int" Nullable="false" />
-          <Property Name="Rank" Type="int" Nullable="false" />
-        </EntityType>
-        <EntityType Name="WordFromPaymon">
-          <Key>
-            <PropertyRef Name="Word" />
-          </Key>
           <Property Name="Word" Type="nvarchar" MaxLength="50" Nullable="false" />
-          <Property Name="Rank" Type="int" />
+          <Property Name="Translated" Type="bit" Nullable="false" />
+          <Property Name="IsPrimary" Type="bit" />
+          <Property Name="OxfordLearnersDictionariesState" Type="int" />
         </EntityType>
-        <EntityType Name="WordInType">
+        <EntityType Name="Joke">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="SourceID" Type="nvarchar" MaxLength="50" />
+          <Property Name="Source" Type="int" Nullable="false" />
+          <Property Name="Body" Type="nvarchar(max)" />
+          <Property Name="Category" Type="nvarchar" MaxLength="50" />
+          <Property Name="Title" Type="nvarchar" MaxLength="4000" />
+          <Property Name="Score" Type="int" />
+          <Property Name="Rating" Type="decimal" Precision="18" Scale="5" />
+        </EntityType>
+        <EntityType Name="Language">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="LanguageCode" Type="varchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="WordTranslate">
           <Key>
             <PropertyRef Name="WordID" />
-            <PropertyRef Name="WordTypeID" />
+            <PropertyRef Name="LanguageId" />
           </Key>
           <Property Name="WordID" Type="int" Nullable="false" />
-          <Property Name="WordTypeID" Type="int" Nullable="false" />
+          <Property Name="LanguageId" Type="int" Nullable="false" />
+          <Property Name="Translated" Type="nvarchar" MaxLength="256" Nullable="false" />
+          <Property Name="CreateDate" Type="datetime" />
         </EntityType>
-        <EntityType Name="WordType">
-          <Key>
-            <PropertyRef Name="ID" />
-          </Key>
-          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="TypeName" Type="nvarchar" MaxLength="50" Nullable="false" />
-        </EntityType>
-        <Association Name="FK_Root_Root">
-          <End Role="Root" Type="Self.Root" Multiplicity="0..1" />
-          <End Role="Root1" Type="Self.Root" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Root">
-              <PropertyRef Name="ID" />
-            </Principal>
-            <Dependent Role="Root1">
-              <PropertyRef Name="Parent" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_WordInType_WordInType">
-          <End Role="WordType" Type="Self.WordType" Multiplicity="1" />
-          <End Role="WordInType" Type="Self.WordInType" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="WordType">
-              <PropertyRef Name="ID" />
-            </Principal>
-            <Dependent Role="WordInType">
-              <PropertyRef Name="WordTypeID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
+        <Function Name="GetCompletedLanguages" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
+        <Function Name="GetJokeBest" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
+        <Function Name="GetJsonFile" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="LanguageId" Type="int" Mode="In" />
+        </Function>
+        <Function Name="GetWordForTranslate" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
         <EntityContainer Name="EnglishWordsModelStoreContainer">
-          <EntitySet Name="RankAndCount" EntityType="Self.RankAndCount" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="Root" EntityType="Self.Root" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="WordFromPaymon" EntityType="Self.WordFromPaymon" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="WordInType" EntityType="Self.WordInType" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="WordType" EntityType="Self.WordType" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="WordCombination" EntityType="Self.WordCombination" store:Type="Tables" store:Schema="dbo">
-            <DefiningQuery>SELECT 
-    [WordCombination].[Word1] AS [Word1], 
-    [WordCombination].[Word2] AS [Word2], 
-    [WordCombination].[Count] AS [Count], 
-    [WordCombination].[Rank] AS [Rank]
-    FROM [dbo].[WordCombination] AS [WordCombination]</DefiningQuery>
-          </EntitySet>
-          <AssociationSet Name="FK_Root_Root" Association="Self.FK_Root_Root">
-            <End Role="Root" EntitySet="Root" />
-            <End Role="Root1" EntitySet="Root" />
-          </AssociationSet>
-          <AssociationSet Name="FK_WordInType_WordInType" Association="Self.FK_WordInType_WordInType">
-            <End Role="WordType" EntitySet="WordType" />
-            <End Role="WordInType" EntitySet="WordInType" />
-          </AssociationSet>
+          <EntitySet Name="AllWordFromPaymon" EntityType="Self.AllWordFromPaymon" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Joke" EntityType="Self.Joke" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Language" EntityType="Self.Language" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="WordTranslate" EntityType="Self.WordTranslate" Schema="dbo" store:Type="Tables" />
         </EntityContainer>
       </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="EnglishWordsModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
         <EntityContainer Name="EnglishWordsEntities" annotation:LazyLoadingEnabled="true">
-          <EntitySet Name="Roots" EntityType="EnglishWordsModel.Root" />
-          <EntitySet Name="WordInTypes" EntityType="EnglishWordsModel.WordInType" />
-          <EntitySet Name="WordTypes" EntityType="EnglishWordsModel.WordType" />
-          <AssociationSet Name="FK_Root_Root" Association="EnglishWordsModel.FK_Root_Root">
-            <End Role="Root" EntitySet="Roots" />
-            <End Role="Root1" EntitySet="Roots" />
-          </AssociationSet>
-          <AssociationSet Name="FK_WordInType_WordInType" Association="EnglishWordsModel.FK_WordInType_WordInType">
-            <End Role="WordType" EntitySet="WordTypes" />
-            <End Role="WordInType" EntitySet="WordInTypes" />
-          </AssociationSet>
-          <EntitySet Name="RankAndCounts" EntityType="EnglishWordsModel.RankAndCount" />
-          <EntitySet Name="WordFromPaymons" EntityType="EnglishWordsModel.WordFromPaymon" />
-          <EntitySet Name="WordCombinations" EntityType="EnglishWordsModel.WordCombination" />
+          <FunctionImport Name="GetWordForTranslate" ReturnType="Collection(EnglishWordsModel.GetWordForTranslate_Result)" />
+          <EntitySet Name="AllWordFromPaymons" EntityType="EnglishWordsModel.AllWordFromPaymon" />
+          <EntitySet Name="Languages" EntityType="EnglishWordsModel.Language" />
+          <EntitySet Name="WordTranslates" EntityType="EnglishWordsModel.WordTranslate" />
+          <FunctionImport Name="GetCompletedLanguages" ReturnType="Collection(EnglishWordsModel.GetCompletedLanguages_Result)" />
+          <FunctionImport Name="GetJsonFile" ReturnType="Collection(String)">
+          <Parameter Name="LanguageId" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <EntitySet Name="Jokes" EntityType="EnglishWordsModel.Joke" />
+          <FunctionImport Name="GetJokeBest" ReturnType="Collection(EnglishWordsModel.GetJokeBest_Result)" />
         </EntityContainer>
-        <EntityType Name="Root">
+        <ComplexType Name="GetWordForTranslate_Result">
+          <Property Type="Int32" Name="WordID" Nullable="false" />
+          <Property Type="String" Name="Word" Nullable="false" MaxLength="50" />
+          <Property Type="Int32" Name="LangId" Nullable="false" />
+          <Property Type="String" Name="LanguageCode" Nullable="false" MaxLength="50" />
+          <Property Type="String" Name="Translated" Nullable="true" MaxLength="256" />
+        </ComplexType>
+        <EntityType Name="AllWordFromPaymon">
           <Key>
             <PropertyRef Name="ID" />
           </Key>
           <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Parent" Type="Int32" />
-          <Property Name="Word" Type="String" Nullable="false" MaxLength="256" FixedLength="false" Unicode="true" />
-          <Property Name="Grouped" Type="Boolean" Nullable="false" />
-          <Property Name="VocabularyCom" Type="Boolean" />
-          <Property Name="DictionaryCom" Type="Boolean" />
-          <Property Name="VocabularyComStatusCode" Type="Int32" />
-          <Property Name="DictionaryComStatusCode" Type="Int32" />
-          <Property Name="CreateDate" Type="DateTime" Precision="3" />
-          <Property Name="VocabularyWordFamilyJson" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="DictionaryWordFamily" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="Root1" Relationship="EnglishWordsModel.FK_Root_Root" FromRole="Root" ToRole="Root1" />
-          <NavigationProperty Name="Root2" Relationship="EnglishWordsModel.FK_Root_Root" FromRole="Root1" ToRole="Root" />
-          <Property Name="Count" Type="Int32" />
-          <Property Name="Rank" Type="Int32" />
-          <Property Name="RankFromPaymon" Type="Int32" />
+          <Property Name="Word" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Translated" Type="Boolean" Nullable="false" />
+          <Property Name="IsPrimary" Type="Boolean" />
+          <Property Name="OxfordLearnersDictionariesState" Type="Int32" />
         </EntityType>
-        <EntityType Name="WordInType">
+        <EntityType Name="Language">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="LanguageCode" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="WordTranslate">
           <Key>
             <PropertyRef Name="WordID" />
-            <PropertyRef Name="WordTypeID" />
+            <PropertyRef Name="LanguageId" />
           </Key>
           <Property Name="WordID" Type="Int32" Nullable="false" />
-          <Property Name="WordTypeID" Type="Int32" Nullable="false" />
-          <NavigationProperty Name="WordType" Relationship="EnglishWordsModel.FK_WordInType_WordInType" FromRole="WordInType" ToRole="WordType" />
+          <Property Name="LanguageId" Type="Int32" Nullable="false" />
+          <Property Name="Translated" Type="String" Nullable="false" MaxLength="256" FixedLength="false" Unicode="true" />
+          <Property Name="CreateDate" Type="DateTime" Precision="3" />
         </EntityType>
-        <EntityType Name="WordType">
+        <ComplexType Name="GetCompletedLanguages_Result">
+          <Property Type="Int32" Name="ID" Nullable="false" />
+          <Property Type="String" Name="LanguageCode" Nullable="false" MaxLength="50" />
+        </ComplexType>
+        <EntityType Name="Joke">
           <Key>
             <PropertyRef Name="ID" />
           </Key>
           <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="TypeName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="WordInTypes" Relationship="EnglishWordsModel.FK_WordInType_WordInType" FromRole="WordType" ToRole="WordInType" />
+          <Property Name="SourceID" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Source" Type="Int32" Nullable="false" />
+          <Property Name="Body" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Category" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Title" Type="String" MaxLength="4000" FixedLength="false" Unicode="true" />
+          <Property Name="Score" Type="Int32" />
+          <Property Name="Rating" Type="Decimal" Precision="18" Scale="5" />
         </EntityType>
-        <Association Name="FK_Root_Root">
-          <End Type="EnglishWordsModel.Root" Role="Root" Multiplicity="0..1" />
-          <End Type="EnglishWordsModel.Root" Role="Root1" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Root">
-              <PropertyRef Name="ID" />
-            </Principal>
-            <Dependent Role="Root1">
-              <PropertyRef Name="Parent" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_WordInType_WordInType">
-          <End Type="EnglishWordsModel.WordType" Role="WordType" Multiplicity="1" />
-          <End Type="EnglishWordsModel.WordInType" Role="WordInType" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="WordType">
-              <PropertyRef Name="ID" />
-            </Principal>
-            <Dependent Role="WordInType">
-              <PropertyRef Name="WordTypeID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <EntityType Name="RankAndCount">
-          <Key>
-            <PropertyRef Name="Rank" />
-          </Key>
-          <Property Name="Rank" Type="Int32" Nullable="false" />
-          <Property Name="Word" Type="String" Nullable="false" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="OtherForms" Type="String" MaxLength="4000" FixedLength="false" Unicode="true" />
-          <Property Name="NumberTimes" Type="Int32" />
-        </EntityType>
-        <EntityType Name="WordFromPaymon">
-          <Key>
-            <PropertyRef Name="Word" />
-          </Key>
-          <Property Name="Word" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="Rank" Type="Int32" />
-        </EntityType>
-        <EntityType Name="WordCombination">
-          <Key>
-            <PropertyRef Name="Word1" />
-            <PropertyRef Name="Word2" />
-            <PropertyRef Name="Count" />
-            <PropertyRef Name="Rank" />
-          </Key>
-          <Property Name="Word1" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
-          <Property Name="Word2" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
-          <Property Name="Count" Type="Int32" Nullable="false" />
-          <Property Name="Rank" Type="Int32" Nullable="false" />
-        </EntityType>
+        <ComplexType Name="GetJokeBest_Result">
+          <Property Type="Int32" Name="ID" Nullable="false" />
+          <Property Type="Int32" Name="Source" Nullable="false" />
+          <Property Type="String" Name="Body" Nullable="true" />
+          <Property Type="String" Name="Category" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="Title" Nullable="true" MaxLength="4000" />
+          <Property Type="Int32" Name="Score" Nullable="true" />
+        </ComplexType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
         <EntityContainerMapping StorageEntityContainer="EnglishWordsModelStoreContainer" CdmEntityContainer="EnglishWordsEntities">
-          <EntitySetMapping Name="Roots">
-            <EntityTypeMapping TypeName="EnglishWordsModel.Root">
-              <MappingFragment StoreEntitySet="Root">
-                <ScalarProperty Name="RankFromPaymon" ColumnName="RankFromPaymon" />
-                <ScalarProperty Name="Rank" ColumnName="Rank" />
-                <ScalarProperty Name="Count" ColumnName="Count" />
-                <ScalarProperty Name="DictionaryWordFamily" ColumnName="DictionaryWordFamily" />
-                <ScalarProperty Name="VocabularyWordFamilyJson" ColumnName="VocabularyWordFamilyJson" />
-                <ScalarProperty Name="CreateDate" ColumnName="CreateDate" />
-                <ScalarProperty Name="DictionaryComStatusCode" ColumnName="DictionaryComStatusCode" />
-                <ScalarProperty Name="VocabularyComStatusCode" ColumnName="VocabularyComStatusCode" />
-                <ScalarProperty Name="DictionaryCom" ColumnName="DictionaryCom" />
-                <ScalarProperty Name="VocabularyCom" ColumnName="VocabularyCom" />
-                <ScalarProperty Name="Grouped" ColumnName="Grouped" />
+          <FunctionImportMapping FunctionImportName="GetWordForTranslate" FunctionName="EnglishWordsModel.Store.GetWordForTranslate">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="EnglishWordsModel.GetWordForTranslate_Result">
+                <ScalarProperty Name="WordID" ColumnName="WordID" />
                 <ScalarProperty Name="Word" ColumnName="Word" />
-                <ScalarProperty Name="Parent" ColumnName="Parent" />
+                <ScalarProperty Name="LangId" ColumnName="LangId" />
+                <ScalarProperty Name="LanguageCode" ColumnName="LanguageCode" />
+                <ScalarProperty Name="Translated" ColumnName="Translated" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <EntitySetMapping Name="AllWordFromPaymons">
+            <EntityTypeMapping TypeName="EnglishWordsModel.AllWordFromPaymon">
+              <MappingFragment StoreEntitySet="AllWordFromPaymon">
+                <ScalarProperty Name="OxfordLearnersDictionariesState" ColumnName="OxfordLearnersDictionariesState" />
+                <ScalarProperty Name="IsPrimary" ColumnName="IsPrimary" />
+                <ScalarProperty Name="Translated" ColumnName="Translated" />
+                <ScalarProperty Name="Word" ColumnName="Word" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="WordInTypes">
-            <EntityTypeMapping TypeName="EnglishWordsModel.WordInType">
-              <MappingFragment StoreEntitySet="WordInType">
-                <ScalarProperty Name="WordTypeID" ColumnName="WordTypeID" />
+          <EntitySetMapping Name="Languages">
+            <EntityTypeMapping TypeName="EnglishWordsModel.Language">
+              <MappingFragment StoreEntitySet="Language">
+                <ScalarProperty Name="LanguageCode" ColumnName="LanguageCode" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="WordTranslates">
+            <EntityTypeMapping TypeName="EnglishWordsModel.WordTranslate">
+              <MappingFragment StoreEntitySet="WordTranslate">
+                <ScalarProperty Name="CreateDate" ColumnName="CreateDate" />
+                <ScalarProperty Name="Translated" ColumnName="Translated" />
+                <ScalarProperty Name="LanguageId" ColumnName="LanguageId" />
                 <ScalarProperty Name="WordID" ColumnName="WordID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="WordTypes">
-            <EntityTypeMapping TypeName="EnglishWordsModel.WordType">
-              <MappingFragment StoreEntitySet="WordType">
-                <ScalarProperty Name="TypeName" ColumnName="TypeName" />
+          <FunctionImportMapping FunctionImportName="GetCompletedLanguages" FunctionName="EnglishWordsModel.Store.GetCompletedLanguages">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="EnglishWordsModel.GetCompletedLanguages_Result">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="LanguageCode" ColumnName="LanguageCode" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="GetJsonFile" FunctionName="EnglishWordsModel.Store.GetJsonFile" />
+          <EntitySetMapping Name="Jokes">
+            <EntityTypeMapping TypeName="EnglishWordsModel.Joke">
+              <MappingFragment StoreEntitySet="Joke">
+                <ScalarProperty Name="Rating" ColumnName="Rating" />
+                <ScalarProperty Name="Score" ColumnName="Score" />
+                <ScalarProperty Name="Title" ColumnName="Title" />
+                <ScalarProperty Name="Category" ColumnName="Category" />
+                <ScalarProperty Name="Body" ColumnName="Body" />
+                <ScalarProperty Name="Source" ColumnName="Source" />
+                <ScalarProperty Name="SourceID" ColumnName="SourceID" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="RankAndCounts">
-            <EntityTypeMapping TypeName="EnglishWordsModel.RankAndCount">
-              <MappingFragment StoreEntitySet="RankAndCount">
-                <ScalarProperty Name="NumberTimes" ColumnName="NumberTimes" />
-                <ScalarProperty Name="OtherForms" ColumnName="OtherForms" />
-                <ScalarProperty Name="Word" ColumnName="Word" />
-                <ScalarProperty Name="Rank" ColumnName="Rank" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="WordFromPaymons">
-            <EntityTypeMapping TypeName="EnglishWordsModel.WordFromPaymon">
-              <MappingFragment StoreEntitySet="WordFromPaymon">
-                <ScalarProperty Name="Rank" ColumnName="Rank" />
-                <ScalarProperty Name="Word" ColumnName="Word" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="WordCombinations">
-            <EntityTypeMapping TypeName="EnglishWordsModel.WordCombination">
-              <MappingFragment StoreEntitySet="WordCombination">
-                <ScalarProperty Name="Rank" ColumnName="Rank" />
-                <ScalarProperty Name="Count" ColumnName="Count" />
-                <ScalarProperty Name="Word2" ColumnName="Word2" />
-                <ScalarProperty Name="Word1" ColumnName="Word1" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="GetJokeBest" FunctionName="EnglishWordsModel.Store.GetJokeBest">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="EnglishWordsModel.GetJokeBest_Result">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Source" ColumnName="Source" />
+                <ScalarProperty Name="Body" ColumnName="Body" />
+                <ScalarProperty Name="Category" ColumnName="Category" />
+                <ScalarProperty Name="Title" ColumnName="Title" />
+                <ScalarProperty Name="Score" ColumnName="Score" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

@@ -12,11 +12,15 @@ namespace ConsoleAppWordProcess
     using System;
     using System.Collections.Generic;
     
-    public partial class WordCombination
+    public partial class Joke
     {
-        public string Word1 { get; set; }
-        public string Word2 { get; set; }
-        public int Count { get; set; }
-        public int Rank { get; set; }
+        public int ID { get; set; }
+        public string SourceID { get; set; }
+        public int Source { get; set; }
+        public string Body { get; set; }
+        public string Category { get; set; }
+        public string Title { get; set; }
+        public Nullable<int> Score { get; set; }
+        public Nullable<decimal> Rating { get; set; }
     }
 }

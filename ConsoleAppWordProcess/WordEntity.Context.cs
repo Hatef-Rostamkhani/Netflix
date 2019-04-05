@@ -12,6 +12,8 @@ namespace ConsoleAppWordProcess
     using System;
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
+    using System.Data.Entity.Core.Objects;
+    using System.Linq;
     
     public partial class EnglishWordsEntities : DbContext
     {
@@ -25,11 +27,33 @@ namespace ConsoleAppWordProcess
             throw new UnintentionalCodeFirstException();
         }
     
-        public virtual DbSet<Root> Roots { get; set; }
-        public virtual DbSet<WordInType> WordInTypes { get; set; }
-        public virtual DbSet<WordType> WordTypes { get; set; }
-        public virtual DbSet<RankAndCount> RankAndCounts { get; set; }
-        public virtual DbSet<WordFromPaymon> WordFromPaymons { get; set; }
-        public virtual DbSet<WordCombination> WordCombinations { get; set; }
+        public virtual DbSet<AllWordFromPaymon> AllWordFromPaymons { get; set; }
+        public virtual DbSet<Language> Languages { get; set; }
+        public virtual DbSet<WordTranslate> WordTranslates { get; set; }
+        public virtual DbSet<Joke> Jokes { get; set; }
+    
+        public virtual ObjectResult<GetWordForTranslate_Result> GetWordForTranslate()
+        {
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<GetWordForTranslate_Result>("GetWordForTranslate");
+        }
+    
+        public virtual ObjectResult<GetCompletedLanguages_Result> GetCompletedLanguages()
+        {
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<GetCompletedLanguages_Result>("GetCompletedLanguages");
+        }
+    
+        public virtual ObjectResult<string> GetJsonFile(Nullable<int> languageId)
+        {
+            var languageIdParameter = languageId.HasValue ?
+                new ObjectParameter("LanguageId", languageId) :
+                new ObjectParameter("LanguageId", typeof(int));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<string>("GetJsonFile", languageIdParameter);
+        }
+    
+        public virtual ObjectResult<GetJokeBest_Result> GetJokeBest()
+        {
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<GetJokeBest_Result>("GetJokeBest");
+        }
     }
 }
