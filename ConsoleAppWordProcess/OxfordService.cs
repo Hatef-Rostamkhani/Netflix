@@ -1,4 +1,6 @@
-﻿using System;
+﻿using HtmlAgilityPack;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -20,7 +22,107 @@ namespace ConsoleAppWordProcess
         }
         public static void StartTask()
         {
-            TranslateResourceData();
+            //TranslateResourceData();
+            ExtartFilesData();
+        }
+
+
+        public static void ExtartFilesData()
+        {
+            //var fileJson = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "\\Titles.json");
+
+            var titleList = new ResourceService().GetAll();
+            var files = Directory.GetFiles(_path);
+            var taskList = new List<Task>();
+            foreach (var file in files)
+            {
+                taskList.Add(Task.Factory.StartNew(() =>
+                {
+                    var fi = new FileInfo(file);
+                    var id = int.Parse(fi.Name.Split('.').FirstOrDefault());
+                    var video = titleList.FirstOrDefault(x => x.ID == id);
+
+
+
+                    ////   if (video != null)
+                    //{
+                    var phoneticList = new List<Phonetic>();
+                    var doc = new HtmlDocument();
+                    doc.Load(file, Encoding.UTF8);
+                    Phonetic lastProcssed = null;
+                    var pronuncitionsSection =
+                        doc.DocumentNode.SelectSingleNode("//div[contains(@class,'pron-gs ei-g')]");
+                    if (pronuncitionsSection != null)
+                    {
+                        var nodes = pronuncitionsSection.SelectNodes("span[@class='pron-g']");
+
+                        foreach (var htmlNode in nodes)
+                        {
+                            var ph = new Phonetic();
+                            var prefixNodes = htmlNode.SelectNodes("span[@class='prefix']");
+                            if (prefixNodes != null && prefixNodes.Any())
+                            {
+                                var first = prefixNodes.First();
+                                ph.Accent = first.InnerText;
+                                if (prefixNodes.Count > 1)
+                                {
+                                    var mode = prefixNodes[1];
+                                    ph.Usage = mode.InnerText;
+                                }
+                            }
+                            else if (lastProcssed != null)
+                            {
+                                ph.Usage = lastProcssed.Usage;
+                                ph.Accent = lastProcssed.Accent;
+                            }
+
+                            var phonNode = htmlNode.SelectSingleNode("span[@class='phon']");
+                            if (phonNode != null)
+                            {
+                                var allSpan = phonNode.SelectNodes("span")?.Where(x =>
+                                    x.HasClass("bre")
+                                    || x.HasClass("wrap")
+                                    || x.HasClass("separator")
+                                    || x.HasClass("name")).ToList();
+                                if (allSpan != null)
+                                    foreach (var span in allSpan)
+                                        phonNode.RemoveChild(span);
+
+                                ph.Phonetic1 = phonNode.InnerText;
+                                ph.WordId = id;
+                                lastProcssed = ph;
+                                phoneticList.Add(ph);
+                                Console.WriteLine(
+                                    $"Word: {video.Word}\tAccent: {ph.Accent}\tUsage: {ph.Usage}\tPhonetic1: {ph.Phonetic1}");
+                            }
+                        }
+
+                        using (var r = new ResourceService())
+                            r.BatchInsertPhonetic(phoneticList);
+                    }
+
+
+
+                    // Console.WriteLine($"{video.VideoId}\t{video.Name}\t{video.ProductionYear}\t{video.AgeRating}");
+                    // }
+                    // }));
+
+                }));
+
+                if (taskList.Count > 10)
+                {
+                    Task.WaitAll(taskList.ToArray());
+                    taskList.Clear();
+                }
+            }
+
+            Task.WaitAll(taskList.ToArray());
+            taskList.Clear();
+
+            // Console.WriteLine(
+            //     $"{titleList.Count(x => !string.IsNullOrEmpty(x.ProductionYear) && !string.IsNullOrEmpty(x.AgeRating))}");
+
+            // File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + "\\Titles.json", JsonConvert.SerializeObject(titleList), Encoding.UTF8);
         }
 
         private static void TrasnaltePerServer(List<AllWordFromPaymon> dataList, int serverId)

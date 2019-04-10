@@ -35,6 +35,16 @@
           <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="LanguageCode" Type="varchar" MaxLength="50" Nullable="false" />
         </EntityType>
+        <EntityType Name="Phonetic">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="WordId" Type="int" Nullable="false" />
+          <Property Name="Phonetic" Type="nvarchar" MaxLength="100" />
+          <Property Name="Usage" Type="nvarchar" MaxLength="50" />
+          <Property Name="Accent" Type="nvarchar" MaxLength="50" />
+        </EntityType>
         <EntityType Name="WordTranslate">
           <Key>
             <PropertyRef Name="WordID" />
@@ -44,6 +54,8 @@
           <Property Name="LanguageId" Type="int" Nullable="false" />
           <Property Name="Translated" Type="nvarchar" MaxLength="256" Nullable="false" />
           <Property Name="CreateDate" Type="datetime" />
+          <Property Name="AllWords" Type="nvarchar(max)" />
+          <Property Name="AllData" Type="nvarchar(max)" />
         </EntityType>
         <Function Name="GetCompletedLanguages" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
         <Function Name="GetJokeBest" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
@@ -55,6 +67,7 @@
           <EntitySet Name="AllWordFromPaymon" EntityType="Self.AllWordFromPaymon" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Joke" EntityType="Self.Joke" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Language" EntityType="Self.Language" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Phonetic" EntityType="Self.Phonetic" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="WordTranslate" EntityType="Self.WordTranslate" Schema="dbo" store:Type="Tables" />
         </EntityContainer>
       </Schema></edmx:StorageModels>
@@ -72,6 +85,7 @@
           </FunctionImport>
           <EntitySet Name="Jokes" EntityType="EnglishWordsModel.Joke" />
           <FunctionImport Name="GetJokeBest" ReturnType="Collection(EnglishWordsModel.GetJokeBest_Result)" />
+          <EntitySet Name="Phonetics" EntityType="EnglishWordsModel.Phonetic" />
         </EntityContainer>
         <ComplexType Name="GetWordForTranslate_Result">
           <Property Type="Int32" Name="WordID" Nullable="false" />
@@ -106,6 +120,8 @@
           <Property Name="LanguageId" Type="Int32" Nullable="false" />
           <Property Name="Translated" Type="String" Nullable="false" MaxLength="256" FixedLength="false" Unicode="true" />
           <Property Name="CreateDate" Type="DateTime" Precision="3" />
+          <Property Name="AllWords" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="AllData" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
         </EntityType>
         <ComplexType Name="GetCompletedLanguages_Result">
           <Property Type="Int32" Name="ID" Nullable="false" />
@@ -132,6 +148,16 @@
           <Property Type="String" Name="Title" Nullable="true" MaxLength="4000" />
           <Property Type="Int32" Name="Score" Nullable="true" />
         </ComplexType>
+        <EntityType Name="Phonetic">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="WordId" Type="Int32" Nullable="false" />
+          <Property Name="Phonetic1" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="Usage" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Accent" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -171,6 +197,8 @@
           <EntitySetMapping Name="WordTranslates">
             <EntityTypeMapping TypeName="EnglishWordsModel.WordTranslate">
               <MappingFragment StoreEntitySet="WordTranslate">
+                <ScalarProperty Name="AllData" ColumnName="AllData" />
+                <ScalarProperty Name="AllWords" ColumnName="AllWords" />
                 <ScalarProperty Name="CreateDate" ColumnName="CreateDate" />
                 <ScalarProperty Name="Translated" ColumnName="Translated" />
                 <ScalarProperty Name="LanguageId" ColumnName="LanguageId" />
@@ -213,6 +241,17 @@
               </ComplexTypeMapping>
             </ResultMapping>
           </FunctionImportMapping>
+          <EntitySetMapping Name="Phonetics">
+            <EntityTypeMapping TypeName="EnglishWordsModel.Phonetic">
+              <MappingFragment StoreEntitySet="Phonetic">
+                <ScalarProperty Name="Accent" ColumnName="Accent" />
+                <ScalarProperty Name="Usage" ColumnName="Usage" />
+                <ScalarProperty Name="Phonetic1" ColumnName="Phonetic" />
+                <ScalarProperty Name="WordId" ColumnName="WordId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

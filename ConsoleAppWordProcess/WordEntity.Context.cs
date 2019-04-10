@@ -31,6 +31,7 @@ namespace ConsoleAppWordProcess
         public virtual DbSet<Language> Languages { get; set; }
         public virtual DbSet<WordTranslate> WordTranslates { get; set; }
         public virtual DbSet<Joke> Jokes { get; set; }
+        public virtual DbSet<Phonetic> Phonetics { get; set; }
     
         public virtual ObjectResult<GetWordForTranslate_Result> GetWordForTranslate()
         {

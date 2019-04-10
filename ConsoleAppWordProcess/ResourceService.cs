@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Data.Entity.Migrations;
 using System.Linq;
@@ -21,6 +22,10 @@ namespace ConsoleAppWordProcess
         internal List<AllWordFromPaymon> GetNeedToDownloadOxford()
         {
             return entity.AllWordFromPaymons.Where(x => x.OxfordLearnersDictionariesState == null).ToList();
+        }
+        internal List<AllWordFromPaymon> GetAll()
+        {
+            return entity.AllWordFromPaymons.ToList();
         }
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
@@ -51,14 +56,16 @@ namespace ConsoleAppWordProcess
             // GC.SuppressFinalize(this);
         }
 
-        internal void SaveResourceTranslated(GetWordForTranslate_Result data)
+        internal void SaveResourceTranslated(GetWordForTranslate_Result data, CallBankService objectT)
         {
-
+            
             entity.WordTranslates.AddOrUpdate(new WordTranslate
             {
                 WordID = data.WordID,
                 LanguageId = data.LangId,
-                Translated = data.Translated,
+                Translated = objectT.Text,
+                AllWords = objectT.All.Aggregate((x, y) => x + ", " + y).Trim(' ', ','),
+                AllData = data.Translated,
                 CreateDate = DateTime.Now
             });
             entity.SaveChanges();
@@ -72,6 +79,12 @@ namespace ConsoleAppWordProcess
         {
             entity.AllWordFromPaymons.Where(x => x.ID == wordId)
                 .UpdateFromQuery(x => new AllWordFromPaymon { OxfordLearnersDictionariesState = status });
+        }
+
+        internal void BatchInsertPhonetic(List<Phonetic> data)
+        {
+            entity.Phonetics.AddRange(data);
+            entity.SaveChanges();
         }
 
         #endregion

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -15,19 +16,16 @@ namespace ConsoleAppWordProcess
         public static List<string> ServerList = new List<string>()
         {
             "localhost",
-            "198.143.180.140",
-            "198.143.183.195",
-            "134.209.106.144",
-            "68.183.189.210",
-            "68.183.189.65",
-            "68.183.185.147",
-            "68.183.181.226",
-            "167.99.77.103",
-            "68.183.189.172",
-            "68.183.189.222",
-
-            "178.128.51.128",
-            "134.209.217.97"
+            "68.183.96.203",
+            "157.230.54.116",
+            "157.230.49.211",
+            "157.230.54.219",
+            "157.230.54.87",
+            "157.230.60.220",
+            "157.230.57.244",
+            "157.230.12.253",
+            "157.230.10.77",
+            "134.209.217.97",
         };
         public static async Task<string> Translate(string from, string to, string body, int server)
         {
@@ -52,6 +50,34 @@ namespace ConsoleAppWordProcess
             }
 
             return await res.Content.ReadAsStringAsync();
+        }
+
+        public static async Task<string> TranslateGetAll(string from, string to, string body, int server)
+        {
+            HttpResponseMessage res;
+            using (var hc = new HttpClient())
+            {
+
+                res = await hc.PostAsync($"http://{ServerList[server]}:8734/TranslateGetAll", new MultipartFormDataContent
+                {
+                    {new StringContent(body), "MessageToTranslate"},
+                    {new StringContent(from), "FromLanguage"},
+                    {new StringContent(to), "ToLanguage"}
+                });
+            }
+
+            if (!res.IsSuccessStatusCode)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"Blocked {ServerList[server]}\t{body}\t{to}\t{DateTime.Now.ToString("HH:mm:ss")}");
+
+                throw new Exception(await res.Content.ReadAsStringAsync());
+            }
+
+            return await res.Content.ReadAsStringAsync();
+
+
+
         }
     }
     public class TrasnlateService
@@ -78,19 +104,21 @@ namespace ConsoleAppWordProcess
                     {
                         try
                         {
-                            var task1 = TranslatorService.Translate(
+                            var resultT = TranslatorService.TranslateGetAll(
                                 "en",
                                 data.LanguageCode,
                                 data.Word,
                                 serverId);
-                            task1.Wait();
-                            data.Translated = task1.Result;
+                            resultT.Wait();
+
+                            data.Translated = resultT.Result;
+                            var objectT = JsonConvert.DeserializeObject<CallBankService>(data.Translated);
                             if (!string.IsNullOrEmpty(data.Translated))
                             {
-                                service2.SaveResourceTranslated(data);
+                                service2.SaveResourceTranslated(data, objectT);
                                 Console.ForegroundColor = ConsoleColor.White;
                                 Console.WriteLine(
-                                    $"{serverId}\t{TranslatorService.ServerList[serverId]}\t{data.Word}\t{data.LanguageCode}\t{data.Translated}\t{DateTime.Now:HH:mm:ss}");
+                                    $"{serverId}\t{TranslatorService.ServerList[serverId]}\t{data.Word}\t{data.LanguageCode}\t{objectT.Text}\t{DateTime.Now:HH:mm:ss}");
                             }
                         }
                         catch (Exception e)
@@ -100,7 +128,7 @@ namespace ConsoleAppWordProcess
                     }
                 }
 
-                var waitMilisecond = 1400;
+                var waitMilisecond = 1100;
                 var sleep = (DateTime.Now - dateTime).TotalMilliseconds;
                 //Console.WriteLine($"Time To call all {sleep}");
                 if (sleep < waitMilisecond)
@@ -109,9 +137,9 @@ namespace ConsoleAppWordProcess
                     Task.Delay(wait).Wait();
                     //Console.WriteLine($"Time need wait {wait}");
                 }
-                var rondomNumber = new Random().Next(1, 500);
+                var rondomNumber = new Random().Next(1, 300);
                 //Console.Write("\tRondomNumber: " + rondomNumber + "\t");
-                Task.Delay(rondomNumber);
+                Task.Delay(rondomNumber).Wait();
             }
             //if (serverId == 0)
             //{
@@ -125,13 +153,13 @@ namespace ConsoleAppWordProcess
         {
             using (var service = new ResourceService())
             {
-                List<GetWordForTranslate_Result> dataList = service.GetResourceNeedTranslate();
+                var dataList = service.GetResourceNeedTranslate();
                 if (dataList != null)
                 {
 
-                    List<Task> currenTask = new List<Task>();
+                    var currenTask = new List<Task>();
 
-                    var threadCount = 1;//TranslatorService.ServerList.Count;
+                    var threadCount = 10;//TranslatorService.ServerList.Count;
                     var count = dataList.Count / threadCount;
 
 
@@ -176,5 +204,49 @@ namespace ConsoleAppWordProcess
             entity.BulkInsert(lists);
             Console.WriteLine("Inserted");
         }
+    }
+    public partial class CallBankService
+    {
+        [JsonProperty("text")]
+        public string Text { get; set; }
+
+        [JsonProperty("all")]
+        public List<string> All { get; set; }
+
+        [JsonProperty("from")]
+        public From From { get; set; }
+
+        [JsonProperty("raw")]
+        public string Raw { get; set; }
+    }
+
+    public partial class From
+    {
+        [JsonProperty("language")]
+        public Language Language { get; set; }
+
+        [JsonProperty("text")]
+        public Text Text { get; set; }
+    }
+
+    public partial class Language
+    {
+        [JsonProperty("didYouMean")]
+        public bool DidYouMean { get; set; }
+
+        [JsonProperty("iso")]
+        public string Iso { get; set; }
+    }
+
+    public partial class Text
+    {
+        [JsonProperty("autoCorrected")]
+        public bool AutoCorrected { get; set; }
+
+        [JsonProperty("value")]
+        public string Value { get; set; }
+
+        [JsonProperty("didYouMean")]
+        public bool DidYouMean { get; set; }
     }
 }

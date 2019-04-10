@@ -21,8 +21,8 @@ namespace ConsoleAppWordProcess
             // Task.Factory.StartNew(FindWordFamilyService.StartDownloadAsync);
             // Task.Factory.StartNew(FindWordFamilyService.StartDownloadVoabularyTimer);
             //ImportJokes.ExportCSV();
-            //currentTask = Task.Factory.StartNew(TrasnlateService.StartTask, token);
-            currentTask = Task.Factory.StartNew(OxfordService.StartTask, token);
+            currentTask = Task.Factory.StartNew(TrasnlateService.StartTask, token);
+            //currentTask = Task.Factory.StartNew(OxfordService.StartTask, token);
 
 
             //ConvertToJson();

@@ -12,13 +12,12 @@ namespace ConsoleAppWordProcess
     using System;
     using System.Collections.Generic;
     
-    public partial class WordTranslate
+    public partial class Phonetic
     {
-        public int WordID { get; set; }
-        public int LanguageId { get; set; }
-        public string Translated { get; set; }
-        public Nullable<System.DateTime> CreateDate { get; set; }
-        public string AllWords { get; set; }
-        public string AllData { get; set; }
+        public int Id { get; set; }
+        public int WordId { get; set; }
+        public string Phonetic1 { get; set; }
+        public string Usage { get; set; }
+        public string Accent { get; set; }
     }
 }
