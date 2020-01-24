@@ -10,6 +10,10 @@
         <EntityTypeShape EntityType="EnglishWordsModel.WordTranslate" Width="1.5" PointX="0.75" PointY="3.75" />
         <EntityTypeShape EntityType="EnglishWordsModel.Joke" Width="1.5" PointX="3.375" PointY="3.75" />
         <EntityTypeShape EntityType="EnglishWordsModel.Phonetic" Width="1.5" PointX="5.375" PointY="0.75" />
+        <EntityTypeShape EntityType="EnglishWordsModel.Wiktionary" Width="1.5" PointX="5.375" PointY="3.75" />
+        <EntityTypeShape EntityType="EnglishWordsModel.Wiki" Width="1.5" PointX="7.375" PointY="0.75" />
+        <EntityTypeShape EntityType="EnglishWordsModel.AllWordFromPaymonCompare" Width="1.5" PointX="0.75" PointY="7.75" />
+        <EntityTypeShape EntityType="EnglishWordsModel.WordTranslateCompare" Width="1.5" PointX="2.75" PointY="7.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

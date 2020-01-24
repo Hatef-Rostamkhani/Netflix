@@ -32,6 +32,10 @@ namespace ConsoleAppWordProcess
         public virtual DbSet<WordTranslate> WordTranslates { get; set; }
         public virtual DbSet<Joke> Jokes { get; set; }
         public virtual DbSet<Phonetic> Phonetics { get; set; }
+        public virtual DbSet<Wiktionary> Wiktionaries { get; set; }
+        public virtual DbSet<Wiki> Wikis { get; set; }
+        public virtual DbSet<AllWordFromPaymonCompare> AllWordFromPaymonCompares { get; set; }
+        public virtual DbSet<WordTranslateCompare> WordTranslateCompares { get; set; }
     
         public virtual ObjectResult<GetWordForTranslate_Result> GetWordForTranslate()
         {

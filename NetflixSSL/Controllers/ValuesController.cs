@@ -4,7 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 using System.Web;
 
 namespace NetflixSSL.Controllers
@@ -13,6 +15,7 @@ namespace NetflixSSL.Controllers
     [ApiController]
     public class ValuesController : ControllerBase
     {
+
         public readonly string RootProject;
 
         public ValuesController()
@@ -40,6 +43,8 @@ namespace NetflixSSL.Controllers
             return true;
         }
 
+
+
         [Route("ProcessVideo")]
         [HttpGet]
         public ActionResult<bool> ProcessVideo(string dataText)
@@ -47,8 +52,9 @@ namespace NetflixSSL.Controllers
             var videoData = JsonConvert.DeserializeObject<VideoData>(HttpUtility.UrlDecode(dataText));
             var urlList = new List<string>();
             foreach (var url in videoData.Urls)
-                urlList.Add($"{videoData.Name},{videoData.MasterRootVideo},{videoData.Season},{url.VideoId},{url.FullUrl}");
-            System.IO.File.AppendAllLines(RootProject + "\\Data.csv", urlList, Encoding.UTF8);
+                urlList.Add($"{videoData.Name.Normal()},{videoData.MasterRootVideo.Normal()},{videoData.Season.Normal()},{url.VideoId},{url.FullUrl}");
+            if (urlList.Count > 0)
+                System.IO.File.AppendAllLines(RootProject + "\\Data.csv", urlList, Encoding.UTF8);
             return true;
         }
 
@@ -83,6 +89,61 @@ namespace NetflixSSL.Controllers
 
 
 
+        [Route("saveimage")]
+        [HttpGet]
+        public ActionResult SaveImage(string word, string dataText, bool skip)
+        {
+            if (!string.IsNullOrEmpty(word))
+            {
+                if (skip)
+                {
+                    System.IO.File.AppendAllText(AppDomain.CurrentDomain.BaseDirectory + "\\Skiped.txt",
+                        word + "\r\n");
+                    return Content(JsonConvert.SerializeObject(NextWord(word)), "application/json");
+                }
+                else
+                {
+                    var image = JsonConvert.DeserializeObject<GoogleImage>(HttpUtility.UrlDecode(dataText));
+                    Task.Factory.StartNew(() => DownloadImage(word, image.ImageUrl));
+                }
+
+            }
+            return Content(JsonConvert.SerializeObject(NextWord(word)), "application/json");
+
+        }
+
+
+        public static void DownloadImage(string word, string url)
+        {
+            try
+            {
+                WebClient wc = new WebClient();
+                wc.DownloadFile(url, AppDomain.CurrentDomain.BaseDirectory + "\\Images\\" + word + ".jpg");
+            }
+            catch (Exception)
+            {
+                System.IO.File.AppendAllText(AppDomain.CurrentDomain.BaseDirectory + "\\FailToDownload.txt",
+                    word + "," + url + "\r\n");
+            }
+
+        }
+        private WordImage NextWord(string oldWord)
+        {
+            if (!string.IsNullOrEmpty(oldWord))
+                Startup.dictionary.Remove(oldWord);
+            var word = Startup.dictionary.FirstOrDefault();
+            return new WordImage()
+            {
+                word = word.Key,
+                translate = word.Value,
+            };
+        }
+
+        public class WordImage
+        {
+            public string word { get; set; }
+            public string translate { get; set; }
+        }
 
 
         // GET api/values/5
@@ -129,5 +190,86 @@ namespace NetflixSSL.Controllers
         public List<int> Urls { get; set; }
         public string MasterRootVideo { get; set; }
         public string Name { get; set; }
+    }
+
+    public partial class GoogleImage
+    {
+        [JsonIgnore]
+        [JsonProperty("cl")]
+        public long Cl { get; set; }
+
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
+
+        [JsonProperty("isu")]
+        public string Website { get; set; }
+
+        [JsonIgnore]
+        [JsonProperty("itg")]
+        public long Itg { get; set; }
+
+        [JsonProperty("ity")]
+        public string Format { get; set; }
+
+        [JsonProperty("oh")]
+        public long Height { get; set; }
+
+        [JsonProperty("ou")]
+        public string ImageUrl { get; set; }
+
+        [JsonProperty("ow")]
+        public long Width { get; set; }
+
+        [JsonProperty("pt")]
+        public string Title { get; set; }
+
+        [JsonIgnore]
+        [JsonProperty("rh")]
+        public string Rh { get; set; }
+
+        [JsonIgnore]
+        [JsonProperty("rid")]
+        public string Rid { get; set; }
+
+        [JsonIgnore]
+        [JsonProperty("rt")]
+        public long Rt { get; set; }
+
+        [JsonProperty("ru")]
+        public string PageUrl { get; set; }
+
+        [JsonProperty("s")]
+        public string Alt { get; set; }
+        [JsonIgnore]
+        [JsonProperty("st")]
+        public string St { get; set; }
+        [JsonIgnore]
+        [JsonProperty("th")]
+        public long Th { get; set; }
+        [JsonIgnore]
+        [JsonProperty("tu")]
+        public Uri Tu { get; set; }
+        [JsonIgnore]
+        [JsonProperty("tw")]
+        public long Tw { get; set; }
+    }
+
+    public partial class VideoListFromPaymon1
+    {
+        [JsonProperty("url")]
+        public string Url { get; set; }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("year")]
+        public long Year { get; set; }
+
+        [JsonProperty("genres")]
+        public List<string> Genres { get; set; }
+
+        [JsonProperty("episodes")]
+        public List<string> Episodes { get; set; }
     }
 }

@@ -1,0 +1,248 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="EnglishWords3Model.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="AllWordFromPaymon">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Word" Type="nvarchar" MaxLength="256" Nullable="false" />
+          <Property Name="Translated" Type="bit" Nullable="false" />
+          <Property Name="IsPrimary" Type="bit" />
+          <Property Name="OxfordLearnersDictionariesState" Type="int" />
+        </EntityType>
+        <EntityType Name="Language">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" Nullable="false" />
+          <Property Name="LanguageCode" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="ComparitbleCode" Type="varchar" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="WordTranslate">
+          <Key>
+            <PropertyRef Name="WordID" />
+            <PropertyRef Name="LanguageId" />
+          </Key>
+          <Property Name="WordID" Type="int" Nullable="false" />
+          <Property Name="LanguageId" Type="int" Nullable="false" />
+          <Property Name="Translated" Type="nvarchar" MaxLength="256" Nullable="false" />
+          <Property Name="CreateDate" Type="datetime" />
+          <Property Name="AllWords" Type="nvarchar(max)" />
+          <Property Name="AllData" Type="nvarchar(max)" />
+          <Property Name="Proccessed" Type="bit" />
+        </EntityType>
+        <EntityType Name="WordTranslation">
+          <Key>
+            <PropertyRef Name="Word" />
+            <PropertyRef Name="Language" />
+            <PropertyRef Name="Translation" />
+          </Key>
+          <Property Name="Word" Type="varchar" MaxLength="256" Nullable="false" />
+          <Property Name="Language" Type="varchar" MaxLength="5" Nullable="false" />
+          <Property Name="Translation" Type="nvarchar" MaxLength="300" Nullable="false" />
+        </EntityType>
+        <Function Name="GetCompletedLanguages" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
+        <Function Name="GetJsonFile" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="LanguageId" Type="int" Mode="In" />
+        </Function>
+        <Function Name="GetWordForTranslate" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
+        <Function Name="Split" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="true" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="String" Type="nvarchar" Mode="In" />
+          <Parameter Name="Delimiter" Type="nchar" Mode="In" />
+          <ReturnType>
+            <CollectionType>
+              <RowType>
+                <Property Name="Id" Type="bigint" />
+                <Property Name="Data" Type="nvarchar" MaxLength="4000" />
+              </RowType>
+            </CollectionType>
+          </ReturnType>
+        </Function>
+        <EntityContainer Name="EnglishWords3ModelStoreContainer">
+          <EntitySet Name="AllWordFromPaymon" EntityType="Self.AllWordFromPaymon" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Language" EntityType="Self.Language" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="WordTranslate" EntityType="Self.WordTranslate" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="WordTranslation" EntityType="Self.WordTranslation" Schema="dbo" store:Type="Tables" />
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="EnglishWords3Model" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <ComplexType Name="Split_Result">
+          <Property Name="Id" Type="Int64" />
+          <Property Name="Data" Type="String" MaxLength="4000" FixedLength="false" Unicode="true" />
+        </ComplexType>
+        <EntityType Name="AllWordFromPaymon">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Word" Type="String" MaxLength="256" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Translated" Type="Boolean" Nullable="false" />
+          <Property Name="IsPrimary" Type="Boolean" />
+          <Property Name="OxfordLearnersDictionariesState" Type="Int32" />
+        </EntityType>
+        <EntityType Name="Language">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" />
+          <Property Name="LanguageCode" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="ComparitbleCode" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="WordTranslate">
+          <Key>
+            <PropertyRef Name="WordID" />
+            <PropertyRef Name="LanguageId" />
+          </Key>
+          <Property Name="WordID" Type="Int32" Nullable="false" />
+          <Property Name="LanguageId" Type="Int32" Nullable="false" />
+          <Property Name="Translated" Type="String" MaxLength="256" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="CreateDate" Type="DateTime" Precision="3" />
+          <Property Name="AllWords" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="AllData" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Proccessed" Type="Boolean" />
+        </EntityType>
+        <EntityType Name="WordTranslation">
+          <Key>
+            <PropertyRef Name="Word" />
+            <PropertyRef Name="Language" />
+            <PropertyRef Name="Translation" />
+          </Key>
+          <Property Name="Word" Type="String" MaxLength="256" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Language" Type="String" MaxLength="5" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Translation" Type="String" MaxLength="300" FixedLength="false" Unicode="true" Nullable="false" />
+        </EntityType>
+        <EntityContainer Name="EnglishWords3Entities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="AllWordFromPaymons" EntityType="Self.AllWordFromPaymon" />
+          <EntitySet Name="Languages" EntityType="Self.Language" />
+          <EntitySet Name="WordTranslates" EntityType="Self.WordTranslate" />
+          <EntitySet Name="WordTranslations" EntityType="Self.WordTranslation" />
+          <FunctionImport Name="Split" IsComposable="true" ReturnType="Collection(EnglishWords3Model.Split_Result)">
+            <Parameter Name="String" Mode="In" Type="String" />
+            <Parameter Name="Delimiter" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="GetCompletedLanguages" ReturnType="Collection(EnglishWords3Model.GetCompletedLanguages_Result)" />
+          <FunctionImport Name="GetJsonFile" ReturnType="Collection(String)">
+          <Parameter Name="LanguageId" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <FunctionImport Name="GetWordForTranslate" ReturnType="Collection(EnglishWords3Model.GetWordForTranslate_Result)" />
+        </EntityContainer>
+        <ComplexType Name="GetCompletedLanguages_Result">
+          <Property Type="Int32" Name="ID" Nullable="false" />
+          <Property Type="String" Name="LanguageCode" Nullable="false" MaxLength="50" />
+          <Property Type="String" Name="ComparitbleCode" Nullable="true" MaxLength="50" />
+        </ComplexType>
+        <ComplexType Name="GetWordForTranslate_Result">
+          <Property Type="Int32" Name="WordID" Nullable="false" />
+          <Property Type="String" Name="Word" Nullable="false" MaxLength="256" />
+          <Property Type="Int32" Name="LangId" Nullable="false" />
+          <Property Type="String" Name="LanguageCode" Nullable="false" MaxLength="50" />
+          <Property Type="String" Name="Translated" Nullable="true" MaxLength="256" />
+        </ComplexType>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="EnglishWords3ModelStoreContainer" CdmEntityContainer="EnglishWords3Entities">
+          <EntitySetMapping Name="AllWordFromPaymons">
+            <EntityTypeMapping TypeName="EnglishWords3Model.AllWordFromPaymon">
+              <MappingFragment StoreEntitySet="AllWordFromPaymon">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Word" ColumnName="Word" />
+                <ScalarProperty Name="Translated" ColumnName="Translated" />
+                <ScalarProperty Name="IsPrimary" ColumnName="IsPrimary" />
+                <ScalarProperty Name="OxfordLearnersDictionariesState" ColumnName="OxfordLearnersDictionariesState" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Languages">
+            <EntityTypeMapping TypeName="EnglishWords3Model.Language">
+              <MappingFragment StoreEntitySet="Language">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="LanguageCode" ColumnName="LanguageCode" />
+                <ScalarProperty Name="ComparitbleCode" ColumnName="ComparitbleCode" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="WordTranslates">
+            <EntityTypeMapping TypeName="EnglishWords3Model.WordTranslate">
+              <MappingFragment StoreEntitySet="WordTranslate">
+                <ScalarProperty Name="WordID" ColumnName="WordID" />
+                <ScalarProperty Name="LanguageId" ColumnName="LanguageId" />
+                <ScalarProperty Name="Translated" ColumnName="Translated" />
+                <ScalarProperty Name="CreateDate" ColumnName="CreateDate" />
+                <ScalarProperty Name="AllWords" ColumnName="AllWords" />
+                <ScalarProperty Name="AllData" ColumnName="AllData" />
+                <ScalarProperty Name="Proccessed" ColumnName="Proccessed" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="WordTranslations">
+            <EntityTypeMapping TypeName="EnglishWords3Model.WordTranslation">
+              <MappingFragment StoreEntitySet="WordTranslation">
+                <ScalarProperty Name="Word" ColumnName="Word" />
+                <ScalarProperty Name="Language" ColumnName="Language" />
+                <ScalarProperty Name="Translation" ColumnName="Translation" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <FunctionImportMapping FunctionName="EnglishWords3Model.Store.Split" FunctionImportName="Split">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="EnglishWords3Model.Split_Result">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Data" ColumnName="Data" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="GetCompletedLanguages" FunctionName="EnglishWords3Model.Store.GetCompletedLanguages">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="EnglishWords3Model.GetCompletedLanguages_Result">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="LanguageCode" ColumnName="LanguageCode" />
+                <ScalarProperty Name="ComparitbleCode" ColumnName="ComparitbleCode" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="GetJsonFile" FunctionName="EnglishWords3Model.Store.GetJsonFile" />
+          <FunctionImportMapping FunctionImportName="GetWordForTranslate" FunctionName="EnglishWords3Model.Store.GetWordForTranslate" >
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="EnglishWords3Model.GetWordForTranslate_Result">
+                <ScalarProperty Name="WordID" ColumnName="WordID" />
+                <ScalarProperty Name="Word" ColumnName="Word" />
+                <ScalarProperty Name="LangId" ColumnName="LangId" />
+                <ScalarProperty Name="LanguageCode" ColumnName="LanguageCode" />
+                <ScalarProperty Name="Translated" ColumnName="Translated" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

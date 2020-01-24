@@ -277,6 +277,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -308,23 +309,41 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AllWordFromPaymon.cs">
+      <DependentUpon>English3.tt</DependentUpon>
+    </Compile>
+    <Compile Include="AllWordFromPaymonCompare.cs">
       <DependentUpon>WordEntity.tt</DependentUpon>
     </Compile>
+    <Compile Include="English3.Context.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>English3.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="English3.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>English3.tt</DependentUpon>
+    </Compile>
+    <Compile Include="English3.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>English3.edmx</DependentUpon>
+    </Compile>
     <Compile Include="GetCompletedLanguages_Result.cs">
-      <DependentUpon>WordEntity.tt</DependentUpon>
+      <DependentUpon>English3.tt</DependentUpon>
     </Compile>
     <Compile Include="GetJokeBest_Result.cs">
       <DependentUpon>WordEntity.tt</DependentUpon>
     </Compile>
     <Compile Include="GetWordForTranslate_Result.cs">
-      <DependentUpon>WordEntity.tt</DependentUpon>
+      <DependentUpon>English3.tt</DependentUpon>
     </Compile>
     <Compile Include="ImportJokes.cs" />
     <Compile Include="Joke.cs">
       <DependentUpon>WordEntity.tt</DependentUpon>
     </Compile>
     <Compile Include="Language.cs">
-      <DependentUpon>WordEntity.tt</DependentUpon>
+      <DependentUpon>English3.tt</DependentUpon>
     </Compile>
     <Compile Include="NetflixService123.cs" />
     <Compile Include="Phonetic.cs">
@@ -332,12 +351,30 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="ResourceService3.cs" />
     <Compile Include="ResourceService.cs" />
     <Compile Include="Result1.cs" />
+    <Compile Include="Split_Result.cs">
+      <DependentUpon>English3.tt</DependentUpon>
+    </Compile>
     <Compile Include="Title_cs.cs" />
     <Compile Include="OxfordService.cs" />
+    <Compile Include="TrasnlateService3.cs" />
+    <Compile Include="TrasnlateServiceForCompare.cs" />
     <Compile Include="TrasnlateService.cs" />
     <Compile Include="VideoData.cs" />
+    <Compile Include="Wiki.cs">
+      <DependentUpon>WordEntity.tt</DependentUpon>
+    </Compile>
+    <Compile Include="WikiDictionaryService.cs" />
+    <Compile Include="Wiktionary.cs">
+      <DependentUpon>WordEntity.tt</DependentUpon>
+    </Compile>
     <Compile Include="WordEntity.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -355,7 +392,13 @@
     </Compile>
     <Compile Include="WordFamilyService.cs" />
     <Compile Include="WordTranslate.cs">
+      <DependentUpon>English3.tt</DependentUpon>
+    </Compile>
+    <Compile Include="WordTranslateCompare.cs">
       <DependentUpon>WordEntity.tt</DependentUpon>
+    </Compile>
+    <Compile Include="WordTranslation.cs">
+      <DependentUpon>English3.tt</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -364,6 +407,13 @@
       <Generator>EntityModelCodeGenerator</Generator>
       <LastGenOutput>WordEntity.Designer.cs</LastGenOutput>
     </EntityDeploy>
+    <EntityDeploy Include="English3.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>English3.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <None Include="English3.edmx.diagram">
+      <DependentUpon>English3.edmx</DependentUpon>
+    </None>
     <None Include="packages.config" />
     <None Include="tools\install.ps1" />
     <None Include="tools\uninstall.ps1" />
@@ -373,6 +423,19 @@
     <None Include="Words in db %281%29.csv" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="English3.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>English3.edmx</DependentUpon>
+      <LastGenOutput>English3.Context.cs</LastGenOutput>
+    </Content>
+    <Content Include="English3.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>English3.edmx</DependentUpon>
+      <LastGenOutput>English3.cs</LastGenOutput>
+    </Content>
+    <Content Include="portuguese.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="WordEntity.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>WordEntity.Context.cs</LastGenOutput>
@@ -383,6 +446,7 @@
       <DependentUpon>WordEntity.edmx</DependentUpon>
       <LastGenOutput>WordEntity.cs</LastGenOutput>
     </Content>
+    <Content Include="WordTranslation.sql" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
@@ -391,6 +455,12 @@
     <Analyzer Include="..\packages\GCop.Common.2.4.4\analyzers\dotnet\cs\GCop.Common.dll" />
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.1.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.Analyzers.dll" />
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.1.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.CSharp.Analyzers.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

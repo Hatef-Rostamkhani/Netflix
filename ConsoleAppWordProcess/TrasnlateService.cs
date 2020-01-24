@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -6,6 +7,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using StringSplitOptions = System.StringSplitOptions;
 
@@ -27,6 +29,143 @@ namespace ConsoleAppWordProcess
             "157.230.10.77",
             "134.209.217.97",
         };
+        public static object ob1 = 1;
+        public static void ProcessAll()
+        {
+            Console.Clear();
+            Console.WriteLine("Start ProcessAll");
+            EnglishWordsEntities entity = new EnglishWordsEntities();
+            var langauages = entity.WordTranslates.Where(x => x.Proccessed == null).Select(x => (int?)x.LanguageId).Distinct()
+                .Take(1).FirstOrDefault();
+            List<Task> taskList = new List<Task>();
+
+            if (!langauages.HasValue)
+                return;
+            var dataList = GetData(langauages.Value);
+            var count = dataList.Count / 10;
+            for (var id = 0; id < 10; id++)
+            {
+
+                var forLast = dataList.Count - (id * count);
+                var range = dataList.GetRange(count * id,
+                    id + 1 == 10 ? forLast : count);
+                Console.WriteLine("Start Thread " + id + $" List: {range.Count}");
+                taskList.Add(Task.Factory.StartNew(() => ProcessTranslateFiles(langauages.Value, range)));
+            }
+            Task.WaitAll(taskList.ToArray());
+            ProcessAll();
+        }
+
+        public static List<Result1> GetData(int languageId)
+        {
+            EnglishWordsEntities entity = new EnglishWordsEntities();
+            entity.Database.CommandTimeout = int.MaxValue;
+
+            List<Result1> allData = new List<Result1>();
+            Console.WriteLine("Fetching before lock Data...");
+            lock (ob1)
+            {
+                Console.WriteLine("Fetching Data...");
+                allData = (from f in entity.AllWordFromPaymons
+                           join t in entity.WordTranslates on f.ID equals t.WordID
+                           where t.LanguageId == languageId &&
+                                 t.Proccessed == null //f.IsPrimary == true && t.LanguageId == lan.ID
+                           orderby f.Word
+
+                           select new Result1
+                           {
+                               WordId = t.WordID,
+                               LanId = t.LanguageId,
+                               Word = f.Word,
+                               AllData = t.AllData,
+                               First = "",
+                           }).Take(10000).ToList();
+            }
+            Console.WriteLine("Fetched Data");
+            return allData;
+        }
+        private static void ProcessTranslateFiles(int languageId, List<Result1> allData)
+        {
+
+
+            EnglishWordsEntities entity = new EnglishWordsEntities();
+            entity.Database.CommandTimeout = int.MaxValue;
+            Console.WriteLine("Processing...");
+
+            foreach (var result1 in allData)
+            {
+                var dicAll = new List<string>();
+
+                var objectT = JsonConvert.DeserializeObject<CallBankService>(result1.AllData);
+                var body = JsonConvert.DeserializeObject<JArray>(objectT.Raw);
+
+                if (body.Count > 0)
+                {
+                    var first = body.First<JToken>();
+                    var item = first.FirstOrDefault();
+                    if (item != null)
+                    {
+                        result1.Verified = item[4].Value<int>() == 1;
+                        result1.First = item[0].Value<string>();
+                    }
+                }
+
+
+                if (body.Count > 5 && body[5].HasValues && !result1.Verified)
+                {
+                    var item = body[5].FirstOrDefault();
+                    if (item != null && item[3].HasValues && item[2].HasValues && item[3].Any())
+                    {
+                        var googleWord = item[0].Value<string>().ToLower();
+                        var myword = result1.Word.ToLower();
+                        if (googleWord != myword)
+                        {
+                            File.AppendAllText(AppDomain.CurrentDomain.BaseDirectory + "\\DeffWords.txt",
+                                "\r\n" + myword + "\t" + googleWord);
+                        }
+                        var goodRank = item[3][0].Values<int>().Select((r, i) => new
+                        {
+                            Index = i,
+                            Rank = r,
+                        }).OrderByDescending(x => x.Rank).FirstOrDefault();
+                        if (goodRank != null)
+                        {
+                            if (item[2].Count() > goodRank.Index)
+                                result1.First = item[2][goodRank.Index][0].Value<string>();
+                            else
+                                result1.First = item[2].FirstOrDefault()?[0].Value<string>();
+                        }
+
+
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(result1.First) && result1.First.Length > 0)
+                    dicAll.Add(result1.First.Trim());
+
+                if (body.Count > 1 && body[1].HasValues)
+                {
+                    foreach (var v in body[1])
+                    {
+                        if (v.HasValues && v.Count() > 1)
+                        {
+                            var dic = v[1].Select(x => x.Value<string>()).ToList();
+                            dicAll.AddRange(dic);
+                        }
+                    }
+                }
+
+                dicAll = dicAll.Distinct().ToList();
+                var proceessd = dicAll.Aggregate((x, y) => x + ", " + y).Trim(' ', ',');
+
+                entity.WordTranslates.Where(x => x.WordID == result1.WordId && x.LanguageId == result1.LanId)
+                    .UpdateFromQuery(x => new WordTranslate { AllWords = proceessd, Translated = result1.First, Proccessed = true });
+
+                Console.WriteLine($"Update {result1.WordId}\t{result1.LanId}\t{result1.Word}");
+
+            }
+
+        }
         public static async Task<string> Translate(string from, string to, string body, int server)
         {
             HttpResponseMessage res;
@@ -86,7 +225,16 @@ namespace ConsoleAppWordProcess
         {
             while (true)
             {
-                TranslateResourceData();
+                try
+                {
+                    TranslateResourceData();
+                }
+                catch (Exception e)
+                {
+                    System.Diagnostics.Process.Start(Assembly.GetExecutingAssembly().Location);
+                    Environment.Exit(-1);
+                }
+
             }
         }
 
@@ -113,7 +261,7 @@ namespace ConsoleAppWordProcess
 
                             data.Translated = resultT.Result;
                             var objectT = JsonConvert.DeserializeObject<CallBankService>(data.Translated);
-                            if (!string.IsNullOrEmpty(data.Translated))
+                            if (!string.IsNullOrEmpty(data.Translated) && !string.IsNullOrEmpty(objectT.Text))
                             {
                                 service2.SaveResourceTranslated(data, objectT);
                                 Console.ForegroundColor = ConsoleColor.White;
@@ -128,7 +276,7 @@ namespace ConsoleAppWordProcess
                     }
                 }
 
-                var waitMilisecond = 1100;
+                var waitMilisecond = 1400;
                 var sleep = (DateTime.Now - dateTime).TotalMilliseconds;
                 //Console.WriteLine($"Time To call all {sleep}");
                 if (sleep < waitMilisecond)
@@ -136,16 +284,16 @@ namespace ConsoleAppWordProcess
                     var wait = waitMilisecond - (int)sleep;
                     Task.Delay(wait).Wait();
                     //Console.WriteLine($"Time need wait {wait}");
+                    var rondomNumber = new Random().Next(1, 100);
+                    Task.Delay(rondomNumber).Wait();
                 }
-                var rondomNumber = new Random().Next(1, 300);
-                //Console.Write("\tRondomNumber: " + rondomNumber + "\t");
-                Task.Delay(rondomNumber).Wait();
+
             }
-            //if (serverId == 0)
-            //{
-            //    System.Diagnostics.Process.Start(Assembly.GetExecutingAssembly().Location);
-            //    Environment.Exit(-1);
-            //}
+            if (serverId == 0)
+            {
+                System.Diagnostics.Process.Start(Assembly.GetExecutingAssembly().Location);
+                Environment.Exit(-1);
+            }
 
         }
 
@@ -159,7 +307,7 @@ namespace ConsoleAppWordProcess
 
                     var currenTask = new List<Task>();
 
-                    var threadCount = 10;//TranslatorService.ServerList.Count;
+                    var threadCount = 1;//TranslatorService.ServerList.Count;
                     var count = dataList.Count / threadCount;
 
 
@@ -218,6 +366,20 @@ namespace ConsoleAppWordProcess
 
         [JsonProperty("raw")]
         public string Raw { get; set; }
+
+        [JsonProperty("types")]
+        public List<string> Types { get; set; }
+
+        public bool IsVerb
+        {
+            get
+            {
+                if (Types == null || Types.Count == 0)
+                    return false;
+                return Types.Contains("verb");
+            }
+        }
+
     }
 
     public partial class From

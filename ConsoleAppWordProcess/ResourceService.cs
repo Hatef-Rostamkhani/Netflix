@@ -15,6 +15,7 @@ namespace ConsoleAppWordProcess
         }
         internal List<GetWordForTranslate_Result> GetResourceNeedTranslate()
         {
+            entity.Database.CommandTimeout = int.MaxValue;
             var result = entity.GetWordForTranslate().ToList();
             return result;
         }
@@ -58,8 +59,8 @@ namespace ConsoleAppWordProcess
 
         internal void SaveResourceTranslated(GetWordForTranslate_Result data, CallBankService objectT)
         {
-            
-            entity.WordTranslates.AddOrUpdate(new WordTranslate
+
+            entity.WordTranslates.Add(new WordTranslate
             {
                 WordID = data.WordID,
                 LanguageId = data.LangId,
@@ -69,10 +70,46 @@ namespace ConsoleAppWordProcess
                 CreateDate = DateTime.Now
             });
             entity.SaveChanges();
-            if (entity.WordTranslates.Count(x => x.WordID == data.WordID) == entity.Languages.Count())
+            try
             {
-                entity.AllWordFromPaymons.Where(x => x.ID == data.WordID)
-                    .UpdateFromQuery(x => new AllWordFromPaymon { Translated = true });
+                if (entity.WordTranslates.Count(x => x.WordID == data.WordID) == entity.Languages.Count())
+                {
+                    entity.AllWordFromPaymons.Where(x => x.ID == data.WordID)
+                        .UpdateFromQuery(x => new AllWordFromPaymon { Translated = true });
+                }
+            }
+            catch
+            {
+            }
+        }
+        internal void SaveResourceTranslatedCompare(GetWordForTranslate_Result data, CallBankService objectT)
+        {
+            var ob = new WordTranslateCompare
+            {
+                WordID = data.WordID,
+
+                LanguageId = data.LangId,
+                Translated = objectT.Text,
+                AllWords = objectT.All.Aggregate((x, y) => x + ", " + y).Trim(' ', ','),
+                AllData = data.Translated,
+                CreateDate = DateTime.Now
+            };
+            var ret = TranslatorServiceCompare.ProcessTranslateFiles(ob.Translated, ob);
+            ob.Translated = ret.First;
+            ob.AllWords = ret.AllWords;
+
+            entity.WordTranslateCompares.Add(ob);
+            entity.SaveChanges();
+            try
+            {
+                if (entity.WordTranslateCompares.Count(x => x.WordID == data.WordID) == 1) ;//entity.Languages.Count())
+                {
+                    entity.AllWordFromPaymonCompares.Where(x => x.ID == data.WordID)
+                        .UpdateFromQuery(x => new AllWordFromPaymonCompare { Translated = true });
+                }
+            }
+            catch
+            {
             }
         }
         internal void SetStatusOxfordDownload(int wordId, int status)

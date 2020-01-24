@@ -16,5 +16,6 @@ namespace ConsoleAppWordProcess
     {
         public int ID { get; set; }
         public string LanguageCode { get; set; }
+        public string ComparitbleCode { get; set; }
     }
 }

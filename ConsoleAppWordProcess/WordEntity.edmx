@@ -10,7 +10,17 @@
             <PropertyRef Name="ID" />
           </Key>
           <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="Word" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="Word" Type="nvarchar" MaxLength="256" Nullable="false" />
+          <Property Name="Translated" Type="bit" Nullable="false" />
+          <Property Name="IsPrimary" Type="bit" />
+          <Property Name="OxfordLearnersDictionariesState" Type="int" />
+        </EntityType>
+        <EntityType Name="AllWordFromPaymonCompare">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" Nullable="false" />
+          <Property Name="Word" Type="nvarchar" MaxLength="256" Nullable="false" />
           <Property Name="Translated" Type="bit" Nullable="false" />
           <Property Name="IsPrimary" Type="bit" />
           <Property Name="OxfordLearnersDictionariesState" Type="int" />
@@ -32,8 +42,9 @@
           <Key>
             <PropertyRef Name="ID" />
           </Key>
-          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ID" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
           <Property Name="LanguageCode" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="ComparitbleCode" Type="varchar" MaxLength="50" />
         </EntityType>
         <EntityType Name="Phonetic">
           <Key>
@@ -44,6 +55,30 @@
           <Property Name="Phonetic" Type="nvarchar" MaxLength="100" />
           <Property Name="Usage" Type="nvarchar" MaxLength="50" />
           <Property Name="Accent" Type="nvarchar" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="Wiki">
+          <Key>
+            <PropertyRef Name="languageId" />
+            <PropertyRef Name="wordId" />
+            <PropertyRef Name="Translated" />
+          </Key>
+          <Property Name="languageId" Type="int" Nullable="false" />
+          <Property Name="wordId" Type="int" Nullable="false" />
+          <Property Name="Translated" Type="nvarchar" MaxLength="300" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Wiktionary">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Word" Type="nvarchar" MaxLength="256" />
+          <Property Name="ParentLanguageName" Type="nvarchar" MaxLength="4000" />
+          <Property Name="LanguageName" Type="nvarchar" MaxLength="4000" />
+          <Property Name="Code" Type="nvarchar" MaxLength="250" />
+          <Property Name="Category" Type="nvarchar" MaxLength="4000" />
+          <Property Name="Priority" Type="nvarchar" MaxLength="4000" />
+          <Property Name="Translated" Type="nvarchar" MaxLength="300" />
+          <Property Name="TransSee" Type="nvarchar" MaxLength="4000" />
         </EntityType>
         <EntityType Name="WordTranslate">
           <Key>
@@ -56,6 +91,20 @@
           <Property Name="CreateDate" Type="datetime" />
           <Property Name="AllWords" Type="nvarchar(max)" />
           <Property Name="AllData" Type="nvarchar(max)" />
+          <Property Name="Proccessed" Type="bit" />
+        </EntityType>
+        <EntityType Name="WordTranslateCompare">
+          <Key>
+            <PropertyRef Name="WordID" />
+            <PropertyRef Name="LanguageId" />
+          </Key>
+          <Property Name="WordID" Type="int" Nullable="false" />
+          <Property Name="LanguageId" Type="int" Nullable="false" />
+          <Property Name="Translated" Type="nvarchar" MaxLength="256" Nullable="false" />
+          <Property Name="CreateDate" Type="datetime" />
+          <Property Name="AllWords" Type="nvarchar(max)" />
+          <Property Name="AllData" Type="nvarchar(max)" />
+          <Property Name="Proccessed" Type="bit" />
         </EntityType>
         <Function Name="GetCompletedLanguages" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
         <Function Name="GetJokeBest" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
@@ -65,10 +114,14 @@
         <Function Name="GetWordForTranslate" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
         <EntityContainer Name="EnglishWordsModelStoreContainer">
           <EntitySet Name="AllWordFromPaymon" EntityType="Self.AllWordFromPaymon" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="AllWordFromPaymonCompare" EntityType="Self.AllWordFromPaymonCompare" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Joke" EntityType="Self.Joke" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Language" EntityType="Self.Language" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Phonetic" EntityType="Self.Phonetic" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Wiki" EntityType="Self.Wiki" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Wiktionary" EntityType="Self.Wiktionary" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="WordTranslate" EntityType="Self.WordTranslate" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="WordTranslateCompare" EntityType="Self.WordTranslateCompare" Schema="dbo" store:Type="Tables" />
         </EntityContainer>
       </Schema></edmx:StorageModels>
     <!-- CSDL content -->
@@ -86,6 +139,10 @@
           <EntitySet Name="Jokes" EntityType="EnglishWordsModel.Joke" />
           <FunctionImport Name="GetJokeBest" ReturnType="Collection(EnglishWordsModel.GetJokeBest_Result)" />
           <EntitySet Name="Phonetics" EntityType="EnglishWordsModel.Phonetic" />
+          <EntitySet Name="Wiktionaries" EntityType="EnglishWordsModel.Wiktionary" />
+          <EntitySet Name="Wikis" EntityType="EnglishWordsModel.Wiki" />
+          <EntitySet Name="AllWordFromPaymonCompares" EntityType="EnglishWordsModel.AllWordFromPaymonCompare" />
+          <EntitySet Name="WordTranslateCompares" EntityType="EnglishWordsModel.WordTranslateCompare" />
         </EntityContainer>
         <ComplexType Name="GetWordForTranslate_Result">
           <Property Type="Int32" Name="WordID" Nullable="false" />
@@ -99,7 +156,7 @@
             <PropertyRef Name="ID" />
           </Key>
           <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Word" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Word" Type="String" Nullable="false" MaxLength="256" FixedLength="false" Unicode="true" />
           <Property Name="Translated" Type="Boolean" Nullable="false" />
           <Property Name="IsPrimary" Type="Boolean" />
           <Property Name="OxfordLearnersDictionariesState" Type="Int32" />
@@ -110,6 +167,7 @@
           </Key>
           <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="LanguageCode" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ComparitbleCode" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="WordTranslate">
           <Key>
@@ -122,6 +180,7 @@
           <Property Name="CreateDate" Type="DateTime" Precision="3" />
           <Property Name="AllWords" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="AllData" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Proccessed" Type="Boolean" />
         </EntityType>
         <ComplexType Name="GetCompletedLanguages_Result">
           <Property Type="Int32" Name="ID" Nullable="false" />
@@ -158,6 +217,53 @@
           <Property Name="Usage" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="Accent" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
         </EntityType>
+        <EntityType Name="Wiktionary">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Word" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
+          <Property Name="ParentLanguageName" Type="String" MaxLength="4000" FixedLength="false" Unicode="true" />
+          <Property Name="LanguageName" Type="String" MaxLength="4000" FixedLength="false" Unicode="true" />
+          <Property Name="Code" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="Category" Type="String" MaxLength="4000" FixedLength="false" Unicode="true" />
+          <Property Name="Priority" Type="String" MaxLength="4000" FixedLength="false" Unicode="true" />
+          <Property Name="Translated" Type="String" MaxLength="300" FixedLength="false" Unicode="true" />
+          <Property Name="TransSee" Type="String" MaxLength="4000" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="Wiki">
+          <Key>
+            <PropertyRef Name="languageId" />
+            <PropertyRef Name="wordId" />
+            <PropertyRef Name="Translated" />
+          </Key>
+          <Property Name="languageId" Type="Int32" Nullable="false" />
+          <Property Name="wordId" Type="Int32" Nullable="false" />
+          <Property Name="Translated" Type="String" Nullable="false" MaxLength="300" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="AllWordFromPaymonCompare">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" />
+          <Property Name="Word" Type="String" Nullable="false" MaxLength="256" FixedLength="false" Unicode="true" />
+          <Property Name="Translated" Type="Boolean" Nullable="false" />
+          <Property Name="IsPrimary" Type="Boolean" />
+          <Property Name="OxfordLearnersDictionariesState" Type="Int32" />
+        </EntityType>
+        <EntityType Name="WordTranslateCompare">
+          <Key>
+            <PropertyRef Name="WordID" />
+            <PropertyRef Name="LanguageId" />
+          </Key>
+          <Property Name="WordID" Type="Int32" Nullable="false" />
+          <Property Name="LanguageId" Type="Int32" Nullable="false" />
+          <Property Name="Translated" Type="String" Nullable="false" MaxLength="256" FixedLength="false" Unicode="true" />
+          <Property Name="CreateDate" Type="DateTime" Precision="3" />
+          <Property Name="AllWords" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="AllData" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Proccessed" Type="Boolean" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -189,6 +295,7 @@
           <EntitySetMapping Name="Languages">
             <EntityTypeMapping TypeName="EnglishWordsModel.Language">
               <MappingFragment StoreEntitySet="Language">
+                <ScalarProperty Name="ComparitbleCode" ColumnName="ComparitbleCode" />
                 <ScalarProperty Name="LanguageCode" ColumnName="LanguageCode" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
@@ -197,6 +304,7 @@
           <EntitySetMapping Name="WordTranslates">
             <EntityTypeMapping TypeName="EnglishWordsModel.WordTranslate">
               <MappingFragment StoreEntitySet="WordTranslate">
+                <ScalarProperty Name="Proccessed" ColumnName="Proccessed" />
                 <ScalarProperty Name="AllData" ColumnName="AllData" />
                 <ScalarProperty Name="AllWords" ColumnName="AllWords" />
                 <ScalarProperty Name="CreateDate" ColumnName="CreateDate" />
@@ -249,6 +357,54 @@
                 <ScalarProperty Name="Phonetic1" ColumnName="Phonetic" />
                 <ScalarProperty Name="WordId" ColumnName="WordId" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Wiktionaries">
+            <EntityTypeMapping TypeName="EnglishWordsModel.Wiktionary">
+              <MappingFragment StoreEntitySet="Wiktionary">
+                <ScalarProperty Name="TransSee" ColumnName="TransSee" />
+                <ScalarProperty Name="Translated" ColumnName="Translated" />
+                <ScalarProperty Name="Priority" ColumnName="Priority" />
+                <ScalarProperty Name="Category" ColumnName="Category" />
+                <ScalarProperty Name="Code" ColumnName="Code" />
+                <ScalarProperty Name="LanguageName" ColumnName="LanguageName" />
+                <ScalarProperty Name="ParentLanguageName" ColumnName="ParentLanguageName" />
+                <ScalarProperty Name="Word" ColumnName="Word" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Wikis">
+            <EntityTypeMapping TypeName="EnglishWordsModel.Wiki">
+              <MappingFragment StoreEntitySet="Wiki">
+                <ScalarProperty Name="Translated" ColumnName="Translated" />
+                <ScalarProperty Name="wordId" ColumnName="wordId" />
+                <ScalarProperty Name="languageId" ColumnName="languageId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="AllWordFromPaymonCompares">
+            <EntityTypeMapping TypeName="EnglishWordsModel.AllWordFromPaymonCompare">
+              <MappingFragment StoreEntitySet="AllWordFromPaymonCompare">
+                <ScalarProperty Name="OxfordLearnersDictionariesState" ColumnName="OxfordLearnersDictionariesState" />
+                <ScalarProperty Name="IsPrimary" ColumnName="IsPrimary" />
+                <ScalarProperty Name="Translated" ColumnName="Translated" />
+                <ScalarProperty Name="Word" ColumnName="Word" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="WordTranslateCompares">
+            <EntityTypeMapping TypeName="EnglishWordsModel.WordTranslateCompare">
+              <MappingFragment StoreEntitySet="WordTranslateCompare">
+                <ScalarProperty Name="Proccessed" ColumnName="Proccessed" />
+                <ScalarProperty Name="AllData" ColumnName="AllData" />
+                <ScalarProperty Name="AllWords" ColumnName="AllWords" />
+                <ScalarProperty Name="CreateDate" ColumnName="CreateDate" />
+                <ScalarProperty Name="Translated" ColumnName="Translated" />
+                <ScalarProperty Name="LanguageId" ColumnName="LanguageId" />
+                <ScalarProperty Name="WordID" ColumnName="WordID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

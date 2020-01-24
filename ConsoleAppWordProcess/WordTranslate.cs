@@ -20,5 +20,6 @@ namespace ConsoleAppWordProcess
         public Nullable<System.DateTime> CreateDate { get; set; }
         public string AllWords { get; set; }
         public string AllData { get; set; }
+        public Nullable<bool> Proccessed { get; set; }
     }
 }
