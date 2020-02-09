@@ -309,7 +309,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AllWordFromPaymon.cs">
-      <DependentUpon>English3.tt</DependentUpon>
+      <DependentUpon>WordEntity.tt</DependentUpon>
     </Compile>
     <Compile Include="AllWordFromPaymonCompare.cs">
       <DependentUpon>WordEntity.tt</DependentUpon>
@@ -330,22 +330,26 @@
       <DependentUpon>English3.edmx</DependentUpon>
     </Compile>
     <Compile Include="GetCompletedLanguages_Result.cs">
-      <DependentUpon>English3.tt</DependentUpon>
+      <DependentUpon>WordEntity.tt</DependentUpon>
     </Compile>
     <Compile Include="GetJokeBest_Result.cs">
       <DependentUpon>WordEntity.tt</DependentUpon>
     </Compile>
     <Compile Include="GetWordForTranslate_Result.cs">
-      <DependentUpon>English3.tt</DependentUpon>
+      <DependentUpon>WordEntity.tt</DependentUpon>
     </Compile>
     <Compile Include="ImportJokes.cs" />
     <Compile Include="Joke.cs">
       <DependentUpon>WordEntity.tt</DependentUpon>
     </Compile>
     <Compile Include="Language.cs">
-      <DependentUpon>English3.tt</DependentUpon>
+      <DependentUpon>WordEntity.tt</DependentUpon>
     </Compile>
     <Compile Include="NetflixService123.cs" />
+    <Compile Include="OxfordServiceAutoComplete.cs" />
+    <Compile Include="OxfordWord.cs">
+      <DependentUpon>WordEntity.tt</DependentUpon>
+    </Compile>
     <Compile Include="Phonetic.cs">
       <DependentUpon>WordEntity.tt</DependentUpon>
     </Compile>
@@ -392,7 +396,7 @@
     </Compile>
     <Compile Include="WordFamilyService.cs" />
     <Compile Include="WordTranslate.cs">
-      <DependentUpon>English3.tt</DependentUpon>
+      <DependentUpon>WordEntity.tt</DependentUpon>
     </Compile>
     <Compile Include="WordTranslateCompare.cs">
       <DependentUpon>WordEntity.tt</DependentUpon>

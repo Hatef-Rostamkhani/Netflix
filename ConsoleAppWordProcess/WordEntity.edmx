@@ -14,6 +14,7 @@
           <Property Name="Translated" Type="bit" Nullable="false" />
           <Property Name="IsPrimary" Type="bit" />
           <Property Name="OxfordLearnersDictionariesState" Type="int" />
+          <Property Name="OxfordLearnersDictionarieAutoCompleateState" Type="int" />
         </EntityType>
         <EntityType Name="AllWordFromPaymonCompare">
           <Key>
@@ -45,6 +46,15 @@
           <Property Name="ID" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
           <Property Name="LanguageCode" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="ComparitbleCode" Type="varchar" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="OxfordWord">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="WordId" Type="int" Nullable="false" />
+          <Property Name="Type" Type="int" Nullable="false" />
+          <Property Name="Word" Type="nvarchar(max)" Nullable="false" />
         </EntityType>
         <EntityType Name="Phonetic">
           <Key>
@@ -117,6 +127,7 @@
           <EntitySet Name="AllWordFromPaymonCompare" EntityType="Self.AllWordFromPaymonCompare" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Joke" EntityType="Self.Joke" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Language" EntityType="Self.Language" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OxfordWord" EntityType="Self.OxfordWord" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Phonetic" EntityType="Self.Phonetic" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Wiki" EntityType="Self.Wiki" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Wiktionary" EntityType="Self.Wiktionary" Schema="dbo" store:Type="Tables" />
@@ -143,6 +154,7 @@
           <EntitySet Name="Wikis" EntityType="EnglishWordsModel.Wiki" />
           <EntitySet Name="AllWordFromPaymonCompares" EntityType="EnglishWordsModel.AllWordFromPaymonCompare" />
           <EntitySet Name="WordTranslateCompares" EntityType="EnglishWordsModel.WordTranslateCompare" />
+          <EntitySet Name="OxfordWords" EntityType="EnglishWordsModel.OxfordWord" />
         </EntityContainer>
         <ComplexType Name="GetWordForTranslate_Result">
           <Property Type="Int32" Name="WordID" Nullable="false" />
@@ -160,6 +172,7 @@
           <Property Name="Translated" Type="Boolean" Nullable="false" />
           <Property Name="IsPrimary" Type="Boolean" />
           <Property Name="OxfordLearnersDictionariesState" Type="Int32" />
+          <Property Name="OxfordLearnersDictionarieAutoCompleateState" Type="Int32" />
         </EntityType>
         <EntityType Name="Language">
           <Key>
@@ -264,6 +277,15 @@
           <Property Name="AllData" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="Proccessed" Type="Boolean" />
         </EntityType>
+        <EntityType Name="OxfordWord">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="WordId" Type="Int32" Nullable="false" />
+          <Property Name="Type" Type="Int32" Nullable="false" />
+          <Property Name="Word" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -284,6 +306,7 @@
           <EntitySetMapping Name="AllWordFromPaymons">
             <EntityTypeMapping TypeName="EnglishWordsModel.AllWordFromPaymon">
               <MappingFragment StoreEntitySet="AllWordFromPaymon">
+                <ScalarProperty Name="OxfordLearnersDictionarieAutoCompleateState" ColumnName="OxfordLearnersDictionarieAutoCompleateState" />
                 <ScalarProperty Name="OxfordLearnersDictionariesState" ColumnName="OxfordLearnersDictionariesState" />
                 <ScalarProperty Name="IsPrimary" ColumnName="IsPrimary" />
                 <ScalarProperty Name="Translated" ColumnName="Translated" />
@@ -405,6 +428,16 @@
                 <ScalarProperty Name="Translated" ColumnName="Translated" />
                 <ScalarProperty Name="LanguageId" ColumnName="LanguageId" />
                 <ScalarProperty Name="WordID" ColumnName="WordID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OxfordWords">
+            <EntityTypeMapping TypeName="EnglishWordsModel.OxfordWord">
+              <MappingFragment StoreEntitySet="OxfordWord">
+                <ScalarProperty Name="Word" ColumnName="Word" />
+                <ScalarProperty Name="Type" ColumnName="Type" />
+                <ScalarProperty Name="WordId" ColumnName="WordId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

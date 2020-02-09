@@ -36,6 +36,7 @@ namespace ConsoleAppWordProcess
         public virtual DbSet<Wiki> Wikis { get; set; }
         public virtual DbSet<AllWordFromPaymonCompare> AllWordFromPaymonCompares { get; set; }
         public virtual DbSet<WordTranslateCompare> WordTranslateCompares { get; set; }
+        public virtual DbSet<OxfordWord> OxfordWords { get; set; }
     
         public virtual ObjectResult<GetWordForTranslate_Result> GetWordForTranslate()
         {

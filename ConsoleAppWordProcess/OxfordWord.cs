@@ -12,13 +12,11 @@ namespace ConsoleAppWordProcess
     using System;
     using System.Collections.Generic;
     
-    public partial class AllWordFromPaymon
+    public partial class OxfordWord
     {
-        public int ID { get; set; }
+        public int Id { get; set; }
+        public int WordId { get; set; }
+        public int Type { get; set; }
         public string Word { get; set; }
-        public bool Translated { get; set; }
-        public Nullable<bool> IsPrimary { get; set; }
-        public Nullable<int> OxfordLearnersDictionariesState { get; set; }
-        public Nullable<int> OxfordLearnersDictionarieAutoCompleateState { get; set; }
     }
 }

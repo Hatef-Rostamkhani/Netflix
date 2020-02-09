@@ -1,7 +1,5 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity.Migrations;
 using System.Linq;
 
 namespace ConsoleAppWordProcess
@@ -22,20 +20,31 @@ namespace ConsoleAppWordProcess
 
         internal List<AllWordFromPaymon> GetNeedToDownloadOxford()
         {
-            return entity.AllWordFromPaymons.Where(x => x.OxfordLearnersDictionariesState == null).ToList();
+            return entity.AllWordFromPaymons.Where(x => x.OxfordLearnersDictionariesState == null && x.IsPrimary == true).ToList();
         }
+
+        internal List<AllWordFromPaymon> GetNeedToDownloadOxfordAutoComplete()
+        {
+            return entity.AllWordFromPaymons.Where(x => x.OxfordLearnersDictionarieAutoCompleateState == null && x.IsPrimary == true).ToList();
+        }
+
+
         internal List<AllWordFromPaymon> GetAll()
         {
             return entity.AllWordFromPaymons.ToList();
+        }
+        internal List<AllWordFromPaymon> GetAllIsPrimary()
+        {
+            return entity.AllWordFromPaymons.Where(x => x.IsPrimary == true).ToList();
         }
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposedValue)
+            if(!disposedValue)
             {
-                if (disposing)
+                if(disposing)
                     entity.Dispose();
                 GC.Collect();
                 disposedValue = true;
@@ -60,8 +69,7 @@ namespace ConsoleAppWordProcess
         internal void SaveResourceTranslated(GetWordForTranslate_Result data, CallBankService objectT)
         {
 
-            entity.WordTranslates.Add(new WordTranslate
-            {
+            entity.WordTranslates.Add(new WordTranslate {
                 WordID = data.WordID,
                 LanguageId = data.LangId,
                 Translated = objectT.Text,
@@ -72,20 +80,18 @@ namespace ConsoleAppWordProcess
             entity.SaveChanges();
             try
             {
-                if (entity.WordTranslates.Count(x => x.WordID == data.WordID) == entity.Languages.Count())
+                if(entity.WordTranslates.Count(x => x.WordID == data.WordID) == entity.Languages.Count())
                 {
                     entity.AllWordFromPaymons.Where(x => x.ID == data.WordID)
                         .UpdateFromQuery(x => new AllWordFromPaymon { Translated = true });
                 }
-            }
-            catch
+            } catch
             {
             }
         }
         internal void SaveResourceTranslatedCompare(GetWordForTranslate_Result data, CallBankService objectT)
         {
-            var ob = new WordTranslateCompare
-            {
+            var ob = new WordTranslateCompare {
                 WordID = data.WordID,
 
                 LanguageId = data.LangId,
@@ -102,13 +108,13 @@ namespace ConsoleAppWordProcess
             entity.SaveChanges();
             try
             {
-                if (entity.WordTranslateCompares.Count(x => x.WordID == data.WordID) == 1) ;//entity.Languages.Count())
+                if(entity.WordTranslateCompares.Count(x => x.WordID == data.WordID) == 1)
+                    ;//entity.Languages.Count())
                 {
                     entity.AllWordFromPaymonCompares.Where(x => x.ID == data.WordID)
                         .UpdateFromQuery(x => new AllWordFromPaymonCompare { Translated = true });
                 }
-            }
-            catch
+            } catch
             {
             }
         }
@@ -118,9 +124,21 @@ namespace ConsoleAppWordProcess
                 .UpdateFromQuery(x => new AllWordFromPaymon { OxfordLearnersDictionariesState = status });
         }
 
+        internal void SetStatusOxfordDownloadAutoComplete(int wordId, int status)
+        {
+            entity.AllWordFromPaymons.Where(x => x.ID == wordId)
+                .UpdateFromQuery(x => new AllWordFromPaymon { OxfordLearnersDictionarieAutoCompleateState = status });
+        }
+
         internal void BatchInsertPhonetic(List<Phonetic> data)
         {
             entity.Phonetics.AddRange(data);
+            entity.SaveChanges();
+        }
+
+        internal void BatchInsertOxfordWord(List<OxfordWord> data)
+        {
+            entity.OxfordWords.AddRange(data);
             entity.SaveChanges();
         }
 
